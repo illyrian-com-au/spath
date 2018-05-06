@@ -1,12 +1,12 @@
 package org.spath;
 
-public interface SpathName {
+public interface SpathName extends SpathMatch {
 
     SpathName getParent();
 
-    int getOffset();
+    int getDepth();
     
-    String getValue();
+    SpathType getType();
     
-    <T> boolean match(SpathEvaluator<T> eval, T event);
+    SpathMatch getPredicate();
 }

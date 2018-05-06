@@ -1,6 +1,6 @@
 package org.spath;
 
-public class SpathException extends Exception {
+public class SpathException extends RuntimeException {
     private static final long serialVersionUID = 1548145984150934518L;
 
     public SpathException(String message) {

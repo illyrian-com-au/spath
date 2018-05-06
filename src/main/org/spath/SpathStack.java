@@ -11,30 +11,40 @@ public class SpathStack<T> {
     }
     
     public boolean match(SpathName target) {
+        return matchTarget(target, stack.size() - 1);
+    }
+    
+    public boolean partial(SpathName target) {
+        for (int i=stack.size(); target.getDepth()<=i; i--) {
+            if (matchTarget(target, i - 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean matchTarget(SpathName target, int index) {
         if (target == null) {
-            return true;
-        } else if (matchTarget(target, target.getOffset())){
-            return match(target.getParent());
+            return true; // All targets matched
+        } else if (size() < target.getDepth()) {
+            return false; // Stack is not deep enough
         } else {
+            T event = getEvent(target, index);
+            if (event != null && target.match(matcher, event)) {
+                return matchTarget(target.getParent(), index - 1);
+            }
             return false;
         }
     }
-    
-    public boolean matchTarget(SpathName target, int offset) {
-        if (target == null) {
-            return true;
-        } else if (offset >= 0 && offset < stack.size()) {
-            T event = stack.get(offset);
-            return target.match(matcher, event);
-        } else if (offset < 0 && -offset <= stack.size()) {
-            T event = stack.get(stack.size() + offset);
-            return target.match(matcher, event);
+
+    private T getEvent(SpathName target, int index) {
+        if (target.getType() == SpathType.ROOT) {
+            return get(target.getDepth() - 1);
         } else {
-            // The stack is not large enough to match this part of the spath.
-            return false;
+            return get(index);
         }
     }
-    
+
     public void push(T event) {
         stack.push(event);
     }
@@ -45,6 +55,20 @@ public class SpathStack<T> {
     
     public T peek() {
         return stack.isEmpty() ? null : stack.peek();
+    }
+    
+    public T get(int index) {
+        int size = stack.size();
+        if (index >= 0 && index < size) {
+            T event = stack.get(index);
+            return event;
+        } else {
+            return null;
+        }
+    }
+    
+    public int size() {
+        return stack.size();
     }
     
     public String toString() {

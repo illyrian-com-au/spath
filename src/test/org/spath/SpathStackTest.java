@@ -11,17 +11,32 @@ public class SpathStackTest extends TestCase {
     
     SpathEvaluator<StartElement> matcher = new SpathEvaluator<StartElement>() {
         @Override
-        public boolean match(SpathNameImpl target, StartElement event) {
-            return target.getValue().equals(event.getName().toString());
+        public boolean match(SpathNameElement target, StartElement event) {
+            return target.getName().equals(event.getName().toString());
         }
         
+        @Override
+        public boolean match(SpathNameRelative target, StartElement event) {
+            return target.getName().equals(event.getName().toString());
+        }
+
         @Override
         public boolean match(SpathNameStar target, StartElement event) {
             return true;
         }
         
         @Override
-        public boolean match(SpathPredicate target, StartElement event) {
+        public boolean match(SpathPredicateString target, StartElement event) {
+            return false;
+        }
+
+        @Override
+        public boolean match(SpathPredicateNumber target, StartElement event) {
+            return false;
+        }
+
+        @Override
+        public boolean match(SpathPredicateBoolean target, StartElement event) {
             return false;
         }
     };
@@ -74,7 +89,7 @@ public class SpathStackTest extends TestCase {
     
     @Test
     public void testSimpleStartElement() {
-        SpathName gwml = new SpathNameImpl("GWML");
+        SpathName gwml = new SpathNameStart("GWML");
         assertEquals("/GWML", gwml.toString());
 
         XMLEventFactory xmlFactory = XMLEventFactory.newFactory();
@@ -129,31 +144,31 @@ public class SpathStackTest extends TestCase {
         SpathStack<StartElement> stack = new SpathStack<StartElement>(matcher);
 
         SpathEngine engine = new SpathEngineImpl<StartElement>(stack, eventSource);
-        SpathName gwml = engine.add(new SpathNameImpl("GWML"));
-        SpathName header = engine.add(new SpathNameImpl(gwml, "header"));
-        SpathName address = engine.add(new SpathNameImpl(header, "address"));
-        SpathName trade = engine.add(new SpathNameImpl(gwml, "trade"));
-        SpathName details = engine.add(new SpathNameImpl(trade, "details"));
+        SpathName gwml = engine.add(new SpathNameStart("GWML"));
+        SpathName header = engine.add(new SpathNameElement(gwml, "header"));
+        SpathName address = engine.add(new SpathNameElement(header, "address"));
+        SpathName trade = engine.add(new SpathNameElement(gwml, "trade"));
+        SpathName details = engine.add(new SpathNameElement(trade, "details"));
         
-        assertTrue("GWML", engine.matchAny());
+        assertTrue("GWML", engine.matchNext());
         assertTrue("Match: " + gwml, engine.match(gwml));
-        assertTrue("header", engine.matchAny());
+        assertTrue("header", engine.matchNext());
         assertTrue("Match: " + header, engine.match(header));
-        assertTrue("address", engine.matchAny());
+        assertTrue("address", engine.matchNext());
         assertTrue("Match: " + address, engine.match(address));
-        assertTrue("/address", engine.matchAny());
+        assertTrue("/address", engine.matchNext());
         assertTrue("Match: " + header, engine.match(header));
-        assertTrue("/header", engine.matchAny());
+        assertTrue("/header", engine.matchNext());
         assertTrue("Match: " + gwml, engine.match(gwml));
-        assertTrue("trade", engine.matchAny());
+        assertTrue("trade", engine.matchNext());
         assertTrue("Match: " + trade, engine.match(trade));
-        assertTrue("details", engine.matchAny());
+        assertTrue("details", engine.matchNext());
         assertTrue("Match: " + details, engine.match(details));
-        assertTrue("/details", engine.matchAny());
+        assertTrue("/details", engine.matchNext());
         assertTrue("Match: " + trade, engine.match(trade));
-        assertTrue("/trade", engine.matchAny());
+        assertTrue("/trade", engine.matchNext());
         assertTrue("Match: " + trade, engine.match(gwml));
-        assertFalse("/GWML", engine.matchAny());
+        assertFalse("/GWML", engine.matchNext());
     }
     
     @Test
@@ -163,15 +178,15 @@ public class SpathStackTest extends TestCase {
         SpathStack<StartElement> stack = new SpathStack<StartElement>(matcher);
 
         SpathEngine engine = new SpathEngineImpl<>(stack, eventSource);
-        SpathName gwml = engine.add(new SpathNameImpl("GWML"));
-        SpathName header = engine.add(new SpathNameImpl(gwml, "header"));
-        SpathName address = engine.add(new SpathNameImpl(header, "address"));
-        SpathName trade = engine.add(new SpathNameImpl(gwml, "trade"));
-        SpathName details = engine.add(new SpathNameImpl(trade, "details"));
+        SpathName gwml = engine.add(new SpathNameStart("GWML"));
+        SpathName header = engine.add(new SpathNameElement(gwml, "header"));
+        SpathName address = engine.add(new SpathNameElement(header, "address"));
+        SpathName trade = engine.add(new SpathNameElement(gwml, "trade"));
+        SpathName details = engine.add(new SpathNameElement(trade, "details"));
         
         boolean hasAddress = false;
         boolean hasDetails = false;
-        while (engine.matchAny()) {
+        while (engine.matchNext()) {
             if (engine.match(address)) {
                 hasAddress = true;
             }

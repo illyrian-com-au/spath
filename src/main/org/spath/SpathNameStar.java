@@ -1,64 +1,34 @@
 package org.spath;
 
-public class SpathNameStar implements SpathName {
-    private final SpathName parent;
-    private final int offset;
+public class SpathNameStar extends SpathNameElement implements SpathName {
+    public static final String STAR = "*";
     
     public SpathNameStar() {
-        this(null, 0);
+        super(STAR, SpathType.ROOT);
     }
     
     public SpathNameStar(SpathName parent) {
-        this(parent, parent.getOffset() + 1);
+        super(parent, STAR);
     }
     
-    public SpathNameStar(int offset) {
-        this(null, offset);
+    public SpathNameStar(boolean relative) {
+        super(STAR, relative ? SpathType.RELATIVE : SpathType.ROOT);
     }
     
-    public SpathNameStar(SpathName parent, int offset) {
-        this.parent = parent;
-        this.offset = offset;
+    public SpathNameStar(SpathName parent, boolean relative) {
+        super(parent, STAR, relative ? SpathType.RELATIVE : SpathType.ELEMENT);
     }
     
-    public SpathName getParent() {
-        return parent;
-    }
-    
-    public int getOffset() {
-        return offset;
-    }
-    
-    public String getValue() {
-        return "*";
+    @Override
+    protected void validate(String name) {
     }
     
     @Override
     public <T> boolean match(SpathEvaluator<T> matcher, T event) {
-        return matcher.match(this, event);
+        if (matcher.match(this, event)) {
+            return matchPredicate(matcher, event);
+        }
+        return false;
     }
     
-    @Override
-    public boolean equals(Object other) {
-        if (other == this) {
-            return true;
-        } else if (other instanceof SpathNameStar) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    @Override
-    public String toString() {
-        StringBuilder build = new StringBuilder();
-        if (getParent() != null) {
-            build.append(getParent().toString());
-        }
-        if (getOffset() < 0 && (getParent() == null || getParent().getOffset() >= 0)) {
-            build.append('/');
-        }
-        build.append("/*");
-        return build.toString();
-    }
 }

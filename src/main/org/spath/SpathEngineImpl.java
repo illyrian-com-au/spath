@@ -8,7 +8,7 @@ public class SpathEngineImpl<T> implements SpathEngine {
     final SpathEventSource<T> source;
     final Map<String, SpathName> pathMap;
     
-    SpathName lastMatched = null;
+    SpathMatch lastMatched = null;
     
     public SpathEngineImpl(SpathStack<T> stack, SpathEventSource<T> source) {
         this.stack = stack;
@@ -28,10 +28,10 @@ public class SpathEngineImpl<T> implements SpathEngine {
     }
     
     @Override
-    public boolean matchAny(SpathName base) throws SpathException {
+    public boolean matchNext(SpathName base) throws SpathException {
         lastMatched = null;
         while (source.nextEvent(stack)) {
-            if (!match(base)) {
+            if (base != null && !stack.partial(base)) {
                 break;
             } else if ((lastMatched = findMatch()) != null) {
                 return true;
@@ -40,25 +40,36 @@ public class SpathEngineImpl<T> implements SpathEngine {
         return false;
     }
     
+    public boolean matchNext(String spath) throws SpathException {
+        SpathName target = pathMap.get(spath);
+        if (target != null) {
+            return matchNext(target);
+        }
+        return false;
+    }
+    
     @Override
-    public boolean matchAny() throws SpathException {
+    public boolean matchNext() throws SpathException {
         lastMatched = null;
         while (source.nextEvent(stack)) {
-            if ((lastMatched  = findMatch()) != null) {
+            if ((lastMatched = findMatch()) != null) {
                 return true;
             }
         }
         return false;
     }
     
-    @Override
-    public SpathName findMatch() {
+    public SpathMatch findMatch() {
         for (SpathName target : pathMap.values()) {
             if (stack.match(target)) {
                 return target;
             }
         }
         return null;
+    }
+    
+    public boolean partial(SpathName target) {
+        return stack.partial(target);
     }
     
     @Override
@@ -71,8 +82,16 @@ public class SpathEngineImpl<T> implements SpathEngine {
         }
     }
     
+    public boolean match(String spath) {
+        SpathName target = pathMap.get(spath);
+        if (target != null) {
+            return match(target);
+        }
+        return false;
+    }
+    
     @Override
-    public SpathName getLastMatched() {
+    public SpathMatch getLastMatched() {
         return lastMatched;
     }
     
