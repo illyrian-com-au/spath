@@ -1,4 +1,4 @@
-package org.spath.impl;
+package org.spath.data;
 
 import java.math.BigDecimal;
 
@@ -59,9 +59,7 @@ public class SpathProperty {
         if (value == null) {
             return "null";
         } else if (value instanceof String) {
-            return "\"" + value.toString() + "\"";
-        } else if (value instanceof Character) {
-            return "\'" + value.toString() + "\'";
+            return "'" + value.toString() + "'";
         } else {
             return value.toString();
         }

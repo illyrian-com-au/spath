@@ -1,4 +1,4 @@
-package org.spath.impl;
+package org.spath.data;
 
 import java.math.BigDecimal;
 
@@ -15,21 +15,23 @@ import org.spath.SpathPredicateBoolean;
 import org.spath.SpathPredicateNumber;
 import org.spath.SpathPredicateString;
 import org.spath.SpathStack;
+import org.spath.data.SpathEvent;
+import org.spath.data.SpathEventEvaluator;
 
-public class SpathEvaluatorTest extends TestCase {
-    SpathEvaluator<SpathElement> matcher = new SpathElementEvaluator();
+public class SpathEventEvaluatorTest extends TestCase {
+    SpathEvaluator<SpathEvent> matcher = new SpathEventEvaluator();
     
-    SpathEngine createEngine(SpathElement [] list) {
-        SpathElementEventSource source = new SpathElementEventSource(list);
-        SpathStack<SpathElement> stack = new SpathStack<SpathElement>(matcher);
-        SpathEngine engine = new SpathEngineImpl<SpathElement>(stack, source);
+    SpathEngine createEngine(SpathEvent [] list) {
+        SpathEventTestSource source = new SpathEventTestSource(list);
+        SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(matcher);
+        SpathEngine engine = new SpathEngineImpl<SpathEvent>(stack, source);
         return engine;
     }
     
     @Test
     public void testTextElement() throws Exception {
-        SpathElement [] list = {
-                new SpathElement("data").setText("Hello World"),
+        SpathEvent [] list = {
+                new SpathEvent("data").setText("Hello World"),
                 null
         };
         SpathEngine engine = createEngine(list);
@@ -46,10 +48,10 @@ public class SpathEvaluatorTest extends TestCase {
     
     @Test
     public void testPredicateStringEquals() throws Exception {
-        SpathElement [] list = {
-                new SpathElement("data").addProperty("currency", "AUD"),
+        SpathEvent [] list = {
+                new SpathEvent("data").addProperty("currency", "AUD"),
                 null,
-                new SpathElement("data").addProperty("currency", "USD"),
+                new SpathEvent("data").addProperty("currency", "USD"),
                 null,
         };
         SpathEngine engine = createEngine(list);
@@ -70,10 +72,10 @@ public class SpathEvaluatorTest extends TestCase {
 
     @Test
     public void testPredicateNumberEquals() throws Exception {
-        SpathElement [] list = {
-                new SpathElement("data").addProperty("amount", new BigDecimal("12.50")),
+        SpathEvent [] list = {
+                new SpathEvent("data").addProperty("amount", new BigDecimal("12.50")),
                 null,
-                new SpathElement("data").addProperty("amount", new BigDecimal("10.25")),
+                new SpathEvent("data").addProperty("amount", new BigDecimal("10.25")),
                 null,
         };
         SpathEngine engine = createEngine(list);
@@ -94,10 +96,10 @@ public class SpathEvaluatorTest extends TestCase {
 
     @Test
     public void testPredicateNumberEqualsString() throws Exception {
-        SpathElement [] list = {
-                new SpathElement("data").addProperty("amount", "12.50"),
+        SpathEvent [] list = {
+                new SpathEvent("data").addProperty("amount", "12.50"),
                 null,
-                new SpathElement("data").addProperty("amount", "10.25"),
+                new SpathEvent("data").addProperty("amount", "10.25"),
                 null,
         };
         SpathEngine engine = createEngine(list);
@@ -118,10 +120,10 @@ public class SpathEvaluatorTest extends TestCase {
 
     @Test
     public void testPredicateBooleanEquals() throws Exception {
-        SpathElement [] list = {
-                new SpathElement("data").addProperty("paid", new Boolean(false)),
+        SpathEvent [] list = {
+                new SpathEvent("data").addProperty("paid", new Boolean(false)),
                 null,
-                new SpathElement("data").addProperty("paid", new Boolean(true)),
+                new SpathEvent("data").addProperty("paid", new Boolean(true)),
                 null,
         };
         SpathEngine engine = createEngine(list);
@@ -142,10 +144,10 @@ public class SpathEvaluatorTest extends TestCase {
 
     @Test
     public void testPredicateBooleanEqualsString() throws Exception {
-        SpathElement [] list = {
-                new SpathElement("data").addProperty("paid", "false"),
+        SpathEvent [] list = {
+                new SpathEvent("data").addProperty("paid", "false"),
                 null,
-                new SpathElement("data").addProperty("paid", "true"),
+                new SpathEvent("data").addProperty("paid", "true"),
                 null,
         };
         SpathEngine engine = createEngine(list);

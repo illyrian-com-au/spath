@@ -1,14 +1,15 @@
-package org.spath.impl;
+package org.spath.data;
 
 import org.spath.SpathEventSource;
 import org.spath.SpathStack;
+import org.spath.data.SpathEvent;
 
 
-public class SpathElementEventSource implements SpathEventSource<SpathElement> {
-    SpathElement [] eventList;
+public class SpathEventTestSource implements SpathEventSource<SpathEvent> {
+    SpathEvent [] eventList;
     int index = -1;
     
-    public SpathElementEventSource(SpathElement [] list) {
+    public SpathEventTestSource(SpathEvent [] list) {
         if (list == null) {
             throw new IllegalArgumentException("List cannot be null.");
         }
@@ -20,10 +21,10 @@ public class SpathElementEventSource implements SpathEventSource<SpathElement> {
         return index < eventList.length;
     }
     
-    public boolean nextEvent(SpathStack<SpathElement> stack) {
+    public boolean nextEvent(SpathStack<SpathEvent> stack) {
         if (index + 1 < eventList.length) {
             index++;
-            SpathElement value = eventList[index];
+            SpathEvent value = eventList[index];
             if (value == null) {
                 stack.pop();
             } else {
@@ -35,7 +36,7 @@ public class SpathElementEventSource implements SpathEventSource<SpathElement> {
         }
     }
     
-    public String getText(SpathStack<SpathElement> engine) {
+    public String getText(SpathStack<SpathEvent> engine) {
         if (index < eventList.length) {
             return eventList[index].getText();
         } else {

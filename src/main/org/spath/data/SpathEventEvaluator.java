@@ -1,4 +1,4 @@
-package org.spath.impl;
+package org.spath.data;
 
 import java.math.BigDecimal;
 
@@ -10,32 +10,32 @@ import org.spath.SpathPredicateBoolean;
 import org.spath.SpathPredicateNumber;
 import org.spath.SpathPredicateString;
 
-public class SpathElementEvaluator implements SpathEvaluator<SpathElement> {
+public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
     
-    public SpathElementEvaluator() {
+    public SpathEventEvaluator() {
     }
     
     @Override
-    public boolean match(SpathNameElement target, SpathElement event) {
+    public boolean match(SpathNameElement target, SpathEvent event) {
         String targetValue = target.getName();
         String eventValue = event.getName();
         return targetValue.equals(eventValue);
     }
     
     @Override
-    public boolean match(SpathNameRelative target, SpathElement event) {
+    public boolean match(SpathNameRelative target, SpathEvent event) {
         String targetValue = target.getName();
         String eventValue = event.getName();
         return targetValue.equals(eventValue);
     }
 
     @Override
-    public boolean match(SpathNameStar target, SpathElement event) {
+    public boolean match(SpathNameStar target, SpathEvent event) {
         return true;
     }
     
     @Override
-    public boolean match(SpathPredicateString predicate, SpathElement event) {
+    public boolean match(SpathPredicateString predicate, SpathEvent event) {
         for (SpathProperty prop : event.getProperties()) {
             String name = prop.getName();
             String value = prop.getValueAsString();
@@ -47,7 +47,7 @@ public class SpathElementEvaluator implements SpathEvaluator<SpathElement> {
     }
 
     @Override
-    public boolean match(SpathPredicateNumber predicate, SpathElement event) {
+    public boolean match(SpathPredicateNumber predicate, SpathEvent event) {
         for (SpathProperty prop : event.getProperties()) {
             String name = prop.getName();
             BigDecimal value = prop.getValueAsNumber();
@@ -59,7 +59,7 @@ public class SpathElementEvaluator implements SpathEvaluator<SpathElement> {
     }
 
     @Override
-    public boolean match(SpathPredicateBoolean predicate, SpathElement event) {
+    public boolean match(SpathPredicateBoolean predicate, SpathEvent event) {
         for (SpathProperty prop : event.getProperties()) {
             String name = prop.getName();
             Boolean value = prop.getValueAsBoolean();
