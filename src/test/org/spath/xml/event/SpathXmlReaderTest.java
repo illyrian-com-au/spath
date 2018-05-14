@@ -14,7 +14,7 @@ import org.spath.SpathNameRelative;
 import org.spath.SpathNameStart;
 import org.spath.SpathOperator;
 import org.spath.SpathPredicateString;
-import org.spath.StringReadWriter;
+import org.spath.test.StringReadWriter;
 
 import com.sun.xml.internal.stream.events.CharacterEvent;
 import com.sun.xml.internal.stream.events.EndDocumentEvent;

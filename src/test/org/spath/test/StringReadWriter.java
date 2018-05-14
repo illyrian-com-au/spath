@@ -1,4 +1,4 @@
-package org.spath;
+package org.spath.test;
 
 import java.io.LineNumberReader;
 import java.io.PrintWriter;

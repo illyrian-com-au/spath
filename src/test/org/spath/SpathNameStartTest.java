@@ -3,10 +3,13 @@ package org.spath;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.spath.data.SpathEvent;
+import org.spath.data.SpathEventEvaluator;
+import org.spath.test.SpathEventTestSource;
 
 public class SpathNameStartTest extends TestCase {
-    SpathEvaluator<String> evaluator = new SpathEvaluatorString();
-    SpathStack<String> stack = new SpathStack<>(evaluator);
+    SpathEventEvaluator evaluator = new SpathEventEvaluator();
+    SpathStack<SpathEvent> stack = new SpathStack<>(evaluator);
     
     @Test
     public void testSimpleElement() {
@@ -14,7 +17,7 @@ public class SpathNameStartTest extends TestCase {
         assertEquals("/data", data.toString());
 
         assertFalse("Should not match " + data, stack.match(data));
-        stack.push("data");
+        stack.push(new SpathEvent("data"));
         assertTrue("Should match " + data, stack.match(data));
         stack.pop();
         assertFalse("Should not match " + data, stack.match(data));
@@ -27,10 +30,10 @@ public class SpathNameStartTest extends TestCase {
         assertEquals("/data/trade", trade.toString());
         
         assertFalse("Should not match " + data, stack.match(data));
-        stack.push("data");
+        stack.push(new SpathEvent("data"));
         assertTrue("Should match " + data, stack.match(data));
         assertFalse("Should not match Trade", stack.match(trade));
-        stack.push("trade");
+        stack.push(new SpathEvent("trade"));
         assertTrue("Should match Trade", stack.match(trade));
         stack.pop();
         assertTrue("Should match " + data, stack.match(data));
@@ -46,10 +49,10 @@ public class SpathNameStartTest extends TestCase {
         assertEquals("//trade", topTrade.toString());
         
         assertFalse("Should not match " + topdata, stack.match(topdata));
-        stack.push("data");
+        stack.push(new SpathEvent("data"));
         assertTrue("Should match " + topdata, stack.match(topdata));
         assertFalse("Should not match " + topTrade, stack.match(topTrade));
-        stack.push("trade");
+        stack.push(new SpathEvent("trade"));
         assertTrue("Should match " + topTrade, stack.match(topTrade));
         assertFalse("Should not match " + topdata, stack.match(topdata));
         stack.pop();
@@ -76,19 +79,19 @@ public class SpathNameStartTest extends TestCase {
         assertFalse("Should not match //data", stack.match(topdata));
         assertFalse("Should not match //data/trade", stack.match(topTrade));
         assertFalse("Should not match //data/header", stack.match(topHeader));
-        stack.push("trade");
+        stack.push(new SpathEvent("trade"));
         assertFalse("Should not match //data", stack.match(topdata));
         assertFalse("Should not match //data/trade", stack.match(topTrade));
         assertFalse("Should not match //data/header", stack.match(topHeader));
 
-        stack.push("data");
+        stack.push(new SpathEvent("data"));
         assertTrue("Should match //data", stack.match(topdata));
         assertFalse("Should not match //data/trade", stack.match(topTrade));
-        stack.push("trade");
+        stack.push(new SpathEvent("trade"));
         assertTrue("Should match //data/trade", stack.match(topTrade));
         assertFalse("Should not match //data", stack.match(topdata));
         stack.pop();
-        stack.push("header");
+        stack.push(new SpathEvent("header"));
         assertFalse("Should not match //data/trade", stack.match(topTrade));
         assertFalse("Should not match //data", stack.match(topdata));
         assertTrue("Should match //data/header", stack.match(topHeader));
@@ -105,19 +108,19 @@ public class SpathNameStartTest extends TestCase {
         assertEquals("/data/trade", trade.toString());
         assertEquals("/data/trade//address", address.toString());
 
-        stack.push("data");
-        stack.push("trade");
+        stack.push(new SpathEvent("data"));
+        stack.push(new SpathEvent("trade"));
         assertTrue("Should match /data/trade", stack.match(trade));
-        stack.push("swap");
+        stack.push(new SpathEvent("swap"));
         assertTrue("Should match /data/trade", stack.match(trade));
         assertFalse("Should not match /data/trade//address", stack.match(address));
-        stack.push("address");
+        stack.push(new SpathEvent("address"));
         assertTrue("Should match /data/trade", stack.match(trade));
         assertTrue("Should match /data/trade//address", stack.match(address));
-        stack.push("home");
+        stack.push(new SpathEvent("home"));
         assertTrue("Should match /data/trade", stack.match(trade));
         assertFalse("Should not match /data/trade//address", stack.match(address));
-        stack.push("address");
+        stack.push(new SpathEvent("address"));
         assertTrue("Should match /data/trade", stack.match(trade));
         assertTrue("Should match /data/trade//address", stack.match(address));
     }
@@ -129,10 +132,10 @@ public class SpathNameStartTest extends TestCase {
         assertEquals("//address", address.toString());
         assertEquals("//address/street", street.toString());
 
-        stack.push("data");
-        stack.push("address");
+        stack.push(new SpathEvent("data"));
+        stack.push(new SpathEvent("address"));
         assertTrue("Should match //address", stack.match(address));
-        stack.push("name");
+        stack.push(new SpathEvent("name"));
         assertTrue("Should match //address", stack.partial(address));
         assertFalse("Should match //address", stack.match(address));
         assertFalse("Should not match //address/street", stack.match(street));
@@ -140,7 +143,7 @@ public class SpathNameStartTest extends TestCase {
         assertTrue("Should match //address", stack.partial(address));
         assertTrue("Should match //address", stack.match(address));
         assertFalse("Should not match //address/street", stack.match(street));
-        stack.push("street");
+        stack.push(new SpathEvent("street"));
         assertTrue("Should match //address", stack.partial(address));
         assertFalse("Should match //address", stack.match(address));
         assertTrue("Should not match //address/street", stack.match(street));
@@ -151,11 +154,17 @@ public class SpathNameStartTest extends TestCase {
     
     @Test
     public void testStreamStackEngineUsage() throws SpathException {
-        String [] events = new String [] {"data", "header", "address", null, null, "trade", "details", null, null, null};
-        SpathEventSourceString eventSource = new SpathEventSourceString(events);
-        SpathStack<String> stack = new SpathStack<String>(evaluator);
-
-        SpathEngine engine = new SpathEngineImpl<>(stack, eventSource);
+        SpathEvent [] events = new SpathEvent [] {
+                new SpathEvent("data"), 
+                new SpathEvent("header"), 
+                new SpathEvent("address"), null, null, 
+                new SpathEvent("trade"), 
+                new SpathEvent("details"), null,
+                null, null};
+        SpathEventEvaluator evaluator = new SpathEventEvaluator();
+        SpathEventTestSource eventSource = new SpathEventTestSource(events);
+        SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
+        SpathEngineImpl engine = new SpathEngineImpl<>(stack, eventSource);
         SpathName data = engine.add(new SpathNameStart("data"));
         SpathName header = engine.add(new SpathNameElement(data, "header"));
         SpathName address = engine.add(new SpathNameElement(header, "address"));
@@ -184,20 +193,23 @@ public class SpathNameStartTest extends TestCase {
 
     @Test
     public void testAbsoluteAddress() throws SpathException {
-        String [] events = new String [] {"data", "address", 
-                "street", "1 Erehwon St", null, 
-                "suburb", "Melbourne", null,
-                "postcode", "3000", null, 
+        SpathEvent [] events = new SpathEvent [] {
+                new SpathEvent("data"), 
+                new SpathEvent("address"), 
+                new SpathEvent("street").setText("1 Erehwon St"), null, 
+                new SpathEvent("suburb").setText("Melbourne"), null,
+                new SpathEvent("postcode").setText("3000"), null, 
                 null, null};
-        SpathEventSourceString eventSource = new SpathEventSourceString(events);
-        SpathStack<String> stack = new SpathStack<String>(evaluator);
-
+        SpathEventEvaluator evaluator = new SpathEventEvaluator();
+        SpathEventTestSource eventSource = new SpathEventTestSource(events);
+        SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
         SpathEngineImpl engine = new SpathEngineImpl<>(stack, eventSource);
+
         SpathName data = engine.add(new SpathNameStart("data"));
         SpathName address = engine.add(new SpathNameElement(data, "address"));
-        SpathMatch street = engine.add(new SpathNameElement(address, "street"));
-        SpathMatch suburb = engine.add(new SpathNameElement(address, "suburb"));
-        SpathMatch postcode = engine.add(new SpathNameElement(address, "postcode"));
+        engine.add(new SpathNameElement(address, "street"));
+        engine.add(new SpathNameElement(address, "suburb"));
+        engine.add(new SpathNameElement(address, "postcode"));
 
         Address addr = new Address();
         while (engine.matchNext()) {
@@ -228,19 +240,22 @@ public class SpathNameStartTest extends TestCase {
 
     @Test
     public void testRelativeAddress() throws SpathException {
-        String [] events = new String [] {"data", "address", 
-                "street", "1 Erehwon St", null, 
-                "suburb", "Melbourne", null,
-                "postcode", "3000", null, 
+        SpathEvent [] events = new SpathEvent [] {
+                new SpathEvent("data"), 
+                new SpathEvent("address"), 
+                new SpathEvent("street").setText("1 Erehwon St"), null, 
+                new SpathEvent("suburb").setText("Melbourne"), null,
+                new SpathEvent("postcode").setText("3000"), null, 
                 null, null};
-        SpathEventSourceString eventSource = new SpathEventSourceString(events);
-        SpathStack<String> stack = new SpathStack<String>(evaluator);
-
+        SpathEventEvaluator evaluator = new SpathEventEvaluator();
+        SpathEventTestSource eventSource = new SpathEventTestSource(events);
+        SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
         SpathEngineImpl engine = new SpathEngineImpl<>(stack, eventSource);
+        
         SpathName address = engine.add(new SpathNameRelative("address"));
-        SpathMatch street = engine.add(new SpathNameElement(address, "street"));
-        SpathMatch suburb = engine.add(new SpathNameElement(address, "suburb"));
-        SpathMatch postcode = engine.add(new SpathNameElement(address, "postcode"));
+        engine.add(new SpathNameElement(address, "street"));
+        engine.add(new SpathNameElement(address, "suburb"));
+        engine.add(new SpathNameElement(address, "postcode"));
 
         Address addr = new Address();
         while (engine.matchNext()) {

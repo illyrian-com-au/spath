@@ -1,4 +1,4 @@
-package org.spath.data;
+package org.spath.test;
 
 import org.spath.SpathEventSource;
 import org.spath.SpathStack;
@@ -8,6 +8,10 @@ import org.spath.data.SpathEvent;
 public class SpathEventTestSource implements SpathEventSource<SpathEvent> {
     SpathEvent [] eventList;
     int index = -1;
+    
+    public SpathEventTestSource(String [] list) {
+        this(SpathEventFromString.convert(list));
+    }
     
     public SpathEventTestSource(SpathEvent [] list) {
         if (list == null) {

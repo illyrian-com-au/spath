@@ -5,10 +5,13 @@ import java.math.BigDecimal;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.spath.data.SpathEvent;
+import org.spath.data.SpathEventEvaluator;
+import static org.spath.test.SpathEventFromString.toEvent;
 
 public class SpathPredicateTest extends TestCase {
-    SpathEvaluator<String> evaluator = new SpathEvaluatorString();
-    SpathStack<String> stack = new SpathStack<>(evaluator);
+    SpathEventEvaluator evaluator = new SpathEventEvaluator();
+    SpathStack<SpathEvent> stack = new SpathStack<>(evaluator);
     
     @Test
     public void testAttributeEquals() {
@@ -18,7 +21,7 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/amount[@type='decimal']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@type='decimal']");
+        stack.push(toEvent("amount ( type = 'decimal' ) "));
         assertTrue("Should match " + attr, stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -32,7 +35,9 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/amount[@type='decimal']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@currency='USD'][@type='decimal']");
+        SpathEvent event = toEvent("amount(currency='USD',type='decimal')");
+        stack.push(event);
+        //stack.push("amount[@currency='USD'][@type='decimal']");
         assertTrue("Should match " + attr, stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -48,7 +53,7 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/amount[@type='decimal' and @currency='USD']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@currency='USD'][@type='decimal']");
+        stack.push(toEvent("amount(currency='USD', type='decimal')"));
         assertTrue("Should match amount[@currency='USD' and @type='decimal']", stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -64,7 +69,7 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/amount[@type='decimal' and @currency='USD']", amount.toString());
 
         assertFalse("Should not match " + amount, stack.match(amount));
-        stack.push("amount[@currency='USD'][@type='decimal']");
+        stack.push(toEvent("amount(currency='USD', type='decimal')"));
         assertTrue("Should match " + type, stack.match(amount));
         stack.pop();
         assertFalse("Should not match " + amount, stack.match(amount));
@@ -80,7 +85,7 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/amount[@type='decimal' and @currency='AUD']", amount.toString());
 
         assertFalse("Should not match " + amount, stack.match(amount));
-        stack.push("amount[@currency='USD' and @type='decimal']");
+        stack.push(toEvent("amount(currency='USD', type='decimal')"));
         assertFalse("Should not match " + type, stack.match(amount));
         stack.pop();
         assertFalse("Should not match " + amount, stack.match(amount));
@@ -94,7 +99,7 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/amount[@type]", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@type='decimal']");
+        stack.push(toEvent("amount(type='decimal')"));
         assertTrue("Should match " + attr, stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -108,7 +113,7 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/amount[@type]", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@currency='USD'][@type='decimal']");
+        stack.push(toEvent("amount(currency='USD', type='decimal')"));
         assertTrue("Should match " + attr, stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -122,7 +127,7 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/amount[@type='decimal']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@type='numeric']");
+        stack.push(toEvent("amount(type='numeric')"));
         assertFalse("Should not match " + attr, stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -136,7 +141,7 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@type='decimal']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@type='decimal']");
+        stack.push(toEvent("amount(type='decimal')"));
         assertTrue("Should match " + attr, stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -150,11 +155,11 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@type!='decimal']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@type='other']");
+        stack.push(toEvent("amount(type='other')"));
         assertTrue("Should match " + attr, stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@type='decimal']");
+        stack.push(toEvent("amount(type='decimal')"));
         assertFalse("Should match " + attr, stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -168,10 +173,10 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@amount=123.456]", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@amount='123.456']");
+        stack.push(toEvent("amount(amount='123.456')"));
         assertTrue("Should match [@amount=123.456]", stack.match(element));
         stack.pop();
-        stack.push("amount[@amount='123.789']");
+        stack.push(toEvent("amount(amount='123.789')"));
         assertFalse("Should not match [@amount=123.456]", stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -185,10 +190,10 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@amount!=123.456]", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@amount='123.456']");
+        stack.push(toEvent("amount(amount='123.456')"));
         assertFalse("Should not match [@amount=123.456]", stack.match(element));
         stack.pop();
-        stack.push("amount[@amount='123.789']");
+        stack.push(toEvent("amount(amount='123.789')"));
         assertTrue("Should match [@amount=123.456]", stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
@@ -202,13 +207,13 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@price<30]", element.toString());
 
         assertFalse("Should not match [@price<30]", stack.match(element));
-        stack.push("shoe[@price='20']");
+        stack.push(toEvent("shoe(price='20')"));
         assertTrue("Should match [@price<30]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='30']");
+        stack.push(toEvent("shoe(price='30')"));
         assertFalse("Should not match [@price<30]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='40']");
+        stack.push(toEvent("shoe(price='40')"));
         assertFalse("Should not match [@price<30]", stack.match(element));
         stack.pop();
         assertFalse("Should not match [@price<30]", stack.match(element));
@@ -222,13 +227,13 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@price>30]", element.toString());
 
         assertFalse("Should not match [@price>30]", stack.match(element));
-        stack.push("shoe[@price='20']");
+        stack.push(toEvent("shoe(price='20')"));
         assertFalse("Should not match [@price>30]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='30']");
+        stack.push(toEvent("shoe(price='30']"));
         assertFalse("Should not match [@price>30]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='40']");
+        stack.push(toEvent("shoe(price='40')"));
         assertTrue("Should match [@price>30]", stack.match(element));
         stack.pop();
         assertFalse("Should not match [@price>30]", stack.match(element));
@@ -242,13 +247,13 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@price<=30]", element.toString());
 
         assertFalse("Should not match [@price<=30]", stack.match(element));
-        stack.push("shoe[@price='20']");
+        stack.push(toEvent("shoe(price='20')"));
         assertTrue("Should match [@price<=30]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='30']");
+        stack.push(toEvent("shoe(price='30')"));
         assertTrue("Should match [@price<=30]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='40']");
+        stack.push(toEvent("shoe(price='40')"));
         assertFalse("Should not match [@price<=30]", stack.match(element));
         stack.pop();
         assertFalse("Should not match [@price<=30]", stack.match(element));
@@ -262,13 +267,13 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@price>=30]", element.toString());
 
         assertFalse("Should not match [@price>=30]", stack.match(element));
-        stack.push("shoe[@price='20']");
+        stack.push(toEvent("shoe(price='20')"));
         assertFalse("Should not match [@price>=30]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='30']");
+        stack.push(toEvent("shoe(price='30')"));
         assertTrue("Should match [@price>30]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='40']");
+        stack.push(toEvent("shoe(price='40')"));
         assertTrue("Should match [@price>30]", stack.match(element));
         stack.pop();
         assertFalse("Should not match [@price>=30]", stack.match(element));
@@ -284,16 +289,16 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@price>=30 and @price<40]", element.toString());
 
         assertFalse("Should not match [@price>=30 and @price<40]", stack.match(element));
-        stack.push("shoe[@price='20']");
+        stack.push(toEvent("shoe(price='20')"));
         assertFalse("Should not match [@price>=30 and @price<40]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='30']");
+        stack.push(toEvent("shoe(price='30')"));
         assertTrue("Should match [@price>=30 and @price<40]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='39.99']");
+        stack.push(toEvent("shoe(price='39.99')"));
         assertTrue("Should match [@price>=30 and @price<40]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='40']");
+        stack.push(toEvent("shoe(price='40')"));
         assertFalse("Should not match [@price>=30 and @price<40]", stack.match(element));
         stack.pop();
         assertFalse("Should not match [@price>=30 and @price<40]", stack.match(element));
@@ -309,16 +314,16 @@ public class SpathPredicateTest extends TestCase {
         assertEquals("/*[@price<30 or @price>=40]", element.toString());
 
         assertFalse("Should not match [@price<30 or @price>=40]", stack.match(element));
-        stack.push("shoe[@price='20']");
+        stack.push(toEvent("shoe(price='20')"));
         assertTrue("Should not match [@price<30 or @price>=40]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='29.99']");
+        stack.push(toEvent("shoe(price='29.99')"));
         assertTrue("Should not match [@price<30 or @price>=40]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='30']");
+        stack.push(toEvent("shoe(price='30')"));
         assertFalse("Should match [@price<30 or @price>=40]", stack.match(element));
         stack.pop();
-        stack.push("shoe[@price='40']");
+        stack.push(toEvent("shoe(price='40')"));
         assertTrue("Should not match [@price<30 or @price>=40]", stack.match(element));
         stack.pop();
         assertFalse("Should not match [@price<30 or @price>=40]", stack.match(element));
@@ -331,11 +336,11 @@ public class SpathPredicateTest extends TestCase {
         element.add(attr);
         assertEquals("//*[@type='decimal']", element.toString());
 
-        stack.push("data");
+        stack.push(toEvent("data"));
         assertFalse("Should not match " + element, stack.match(element));
-        stack.push("amount[@type='decimal']");
+        stack.push(toEvent("amount(type='decimal')"));
         assertTrue("Should match " + attr, stack.match(element));
-        assertEquals("[data, amount[@type='decimal']]", stack.toString());
+        assertEquals("[data, amount(type='decimal')]", stack.toString());
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
     }

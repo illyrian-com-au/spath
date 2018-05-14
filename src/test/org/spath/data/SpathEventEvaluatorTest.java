@@ -17,6 +17,7 @@ import org.spath.SpathPredicateString;
 import org.spath.SpathStack;
 import org.spath.data.SpathEvent;
 import org.spath.data.SpathEventEvaluator;
+import org.spath.test.SpathEventTestSource;
 
 public class SpathEventEvaluatorTest extends TestCase {
     SpathEvaluator<SpathEvent> matcher = new SpathEventEvaluator();

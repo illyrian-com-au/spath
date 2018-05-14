@@ -3,10 +3,12 @@ package org.spath;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.spath.data.SpathEvent;
+import org.spath.data.SpathEventEvaluator;
 
 public class SpathNameStarTest extends TestCase {
-    SpathEvaluator<String> evaluator = new SpathEvaluatorString();
-    SpathStack<String> stack = new SpathStack<>(evaluator);
+    SpathEventEvaluator evaluator = new SpathEventEvaluator();
+    SpathStack<SpathEvent> stack = new SpathStack<>(evaluator);
     
     @Test
     public void testSimpleStar() {
@@ -14,7 +16,7 @@ public class SpathNameStarTest extends TestCase {
         assertEquals("/*", star.toString());
 
         assertFalse("Should not match " + star, stack.match(star));
-        stack.push("GWML");
+        stack.push(new SpathEvent("data"));
         assertTrue("Should match " + star, stack.match(star));
         stack.pop();
         assertFalse("Should not match " + star, stack.match(star));
@@ -27,9 +29,9 @@ public class SpathNameStarTest extends TestCase {
         assertEquals("/*/*", dstar.toString());
 
         assertFalse("Should not match " + dstar, stack.match(dstar));
-        stack.push("A");
+        stack.push(new SpathEvent("A"));
         assertFalse("Should not match " + dstar, stack.match(dstar));
-        stack.push("B");
+        stack.push(new SpathEvent("B"));
         assertTrue("Should match " + dstar, stack.match(dstar));
         stack.pop();
         assertFalse("Should not match " + dstar, stack.match(dstar));
@@ -44,16 +46,16 @@ public class SpathNameStarTest extends TestCase {
         assertEquals("/*/phone", dstar.toString());
 
         assertFalse("Should not match " + dstar, stack.match(dstar));
-        stack.push("A");
-        stack.push("phone");
+        stack.push(new SpathEvent("A"));
+        stack.push(new SpathEvent("phone"));
         assertEquals("[A, phone]", stack.toString());
         assertTrue("Should match " + dstar, stack.match(dstar));
         stack.pop();
         stack.pop();
         assertFalse("Should not match " + dstar, stack.match(dstar));
 
-        stack.push("B");
-        stack.push("phone");
+        stack.push(new SpathEvent("B"));
+        stack.push(new SpathEvent("phone"));
         assertEquals("[B, phone]", stack.toString());
         assertTrue("Should match " + dstar, stack.match(dstar));
         stack.pop();
@@ -68,17 +70,17 @@ public class SpathNameStarTest extends TestCase {
         assertEquals("//*/phone", dstar.toString());
 
         assertFalse("Should not match " + dstar, stack.match(dstar));
-        stack.push("A");
+        stack.push(new SpathEvent("A"));
         assertFalse("Should not match " + dstar, stack.match(dstar));
-        stack.push("B");
+        stack.push(new SpathEvent("B"));
         assertFalse("Should not match " + dstar, stack.match(dstar));
-        stack.push("phone");
+        stack.push(new SpathEvent("phone"));
         assertTrue("Should match " + dstar, stack.match(dstar));
         stack.pop();
         assertFalse("Should not match " + dstar, stack.match(dstar));
         stack.pop();
         assertFalse("Should not match " + dstar, stack.match(dstar));
-        stack.push("phone");
+        stack.push(new SpathEvent("phone"));
         assertTrue("Should match " + dstar, stack.match(dstar));
         stack.pop();
         assertFalse("Should not match " + dstar, stack.match(dstar));
@@ -92,17 +94,17 @@ public class SpathNameStarTest extends TestCase {
         assertEquals("//*", star.toString());
 
         assertFalse("Should not match " + star, stack.match(star));
-        stack.push("A");
+        stack.push(new SpathEvent("A"));
         assertTrue("Should match " + star, stack.match(star));
-        stack.push("B");
+        stack.push(new SpathEvent("B"));
         assertTrue("Should match " + star, stack.match(star));
-        stack.push("C");
-        assertTrue("Should match " + star, stack.match(star));
-        stack.pop();
+        stack.push(new SpathEvent("C"));
         assertTrue("Should match " + star, stack.match(star));
         stack.pop();
         assertTrue("Should match " + star, stack.match(star));
-        stack.push("Z");
+        stack.pop();
+        assertTrue("Should match " + star, stack.match(star));
+        stack.push(new SpathEvent("Z"));
         assertTrue("Should match " + star, stack.match(star));
         stack.pop();
         assertTrue("Should match " + star, stack.match(star));
