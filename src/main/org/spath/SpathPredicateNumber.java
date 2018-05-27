@@ -31,6 +31,23 @@ public class SpathPredicateNumber implements SpathMatch {
         return eval.match(this, event);
     }
     
+    public BigDecimal getValueAsNumber(Object value) {
+        if (value instanceof BigDecimal) {
+            return (BigDecimal)value;
+        } else if (value instanceof String) {
+            return getValueAsNumber((String) value);
+        }
+        return null;
+    }
+    
+    public BigDecimal getValueAsNumber(String value) {
+        try {
+            return new BigDecimal(value);
+        } catch (NumberFormatException nfe) {
+            return null;
+        }
+    }
+    
     public boolean compareTo(String name, BigDecimal number) {
         if (getName().equals(name) && number != null) {
             if (getOperator() == null) {

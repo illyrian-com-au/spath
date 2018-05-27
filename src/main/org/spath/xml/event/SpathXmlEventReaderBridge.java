@@ -1,5 +1,6 @@
 package org.spath.xml.event;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 
 import javax.xml.stream.XMLEventReader;
@@ -19,6 +20,8 @@ import org.spath.SpathPredicateBoolean;
 import org.spath.SpathPredicateNumber;
 import org.spath.SpathPredicateString;
 import org.spath.SpathStack;
+import org.spath.data.SpathEvent;
+import org.spath.data.SpathProperty;
 
 import com.sun.xml.internal.stream.events.CharacterEvent;
 
@@ -54,32 +57,45 @@ public class SpathXmlEventReaderBridge implements SpathEvaluator<StartElement>, 
         Iterator<Attribute> iter = event.getAttributes();
         while (iter.hasNext()) {
             Attribute attr = iter.next();
-            if (matchAttribute(predicate, attr)) {
+            String name = attr.getName().toString();
+            String value = attr.getValue();
+            if (predicate.compareTo(name, value)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean matchAttribute(SpathPredicateString predicate, Attribute attribute) {
-        if (predicate.getName().equals(attribute.getName().toString())) {
-            if (predicate.getOperator() != null) {
-                if (predicate.getValue().equals(attribute.getValue())) {
-                    return true;
-                }
+    @Override
+    public boolean match(SpathPredicateNumber predicate, StartElement event) {
+        @SuppressWarnings("unchecked")
+        Iterator<Attribute> iter = event.getAttributes();
+        while (iter.hasNext()) {
+            Attribute attr = iter.next();
+            String name = attr.getName().toString();
+            String value = attr.getValue();
+            BigDecimal decimal = predicate.getValueAsNumber(value);
+            if (decimal != null && predicate.compareTo(name, decimal)) {
+                return true;
             }
         }
         return false;
     }
 
     @Override
-    public boolean match(SpathPredicateNumber target, StartElement event) {
-        throw new SpathException("SpathPredicateNumber not handled");
-    }
-
-    @Override
-    public boolean match(SpathPredicateBoolean target, StartElement event) {
-        throw new SpathException("SpathPredicateBoolean not handled");
+    public boolean match(SpathPredicateBoolean predicate, StartElement event) {
+        @SuppressWarnings("unchecked")
+        Iterator<Attribute> iter = event.getAttributes();
+        while (iter.hasNext()) {
+            Attribute attr = iter.next();
+            String name = attr.getName().toString();
+            String value = attr.getValue();
+            Boolean bool = predicate.getValueAsBoolean(value);
+            if (predicate.compareTo(name, bool)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

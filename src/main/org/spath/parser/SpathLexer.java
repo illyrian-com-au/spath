@@ -448,7 +448,7 @@ public class SpathLexer
     private boolean isDelimiter(char ch)
     {
         switch (ch) {
-//        case ',' :
+        case '*' :
         case '@' :
         case '(' :
         case ')' :
@@ -472,7 +472,7 @@ public class SpathLexer
         switch (ch) {
         case '/':
         case '=':
-        case '*':
+ //       case '*':
         case '!':
         case '+':
         case '-':

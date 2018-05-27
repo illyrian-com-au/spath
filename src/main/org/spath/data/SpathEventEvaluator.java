@@ -50,7 +50,7 @@ public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
     public boolean match(SpathPredicateNumber predicate, SpathEvent event) {
         for (SpathProperty prop : event.getProperties()) {
             String name = prop.getName();
-            BigDecimal value = prop.getValueAsNumber();
+            BigDecimal value = predicate.getValueAsNumber(prop.getValue());
             if (predicate.compareTo(name, value)) {
                 return true;
             }
@@ -62,7 +62,7 @@ public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
     public boolean match(SpathPredicateBoolean predicate, SpathEvent event) {
         for (SpathProperty prop : event.getProperties()) {
             String name = prop.getName();
-            Boolean value = prop.getValueAsBoolean();
+            Boolean value = predicate.getValueAsBoolean(prop.getValue());
             if (predicate.compareTo(name, value)) {
                 return true;
             }

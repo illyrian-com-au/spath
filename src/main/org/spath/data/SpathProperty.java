@@ -3,8 +3,6 @@ package org.spath.data;
 import java.math.BigDecimal;
 
 public class SpathProperty {
-    private static final String TRUE = "true";
-    private static final String FALSE = "false";
     private final String name;
     private final Object value;
     
@@ -24,33 +22,6 @@ public class SpathProperty {
     public String getValueAsString() {
         if (value instanceof String) {
             return (String)value;
-        }
-        return null;
-    }
-    
-    public BigDecimal getValueAsNumber() {
-        if (value instanceof BigDecimal) {
-            return (BigDecimal)value;
-        } else if (value instanceof String) {
-            try {
-                return new BigDecimal(value.toString());
-            } catch (NumberFormatException nfe) {
-                // Fall through
-            }
-        }
-        return null;
-    }
-    
-    public Boolean getValueAsBoolean() {
-        if (value instanceof Boolean) {
-            return (Boolean)value;
-        } else if (value instanceof String) {
-            String valueString = value.toString();
-            if (TRUE.equalsIgnoreCase(valueString)) {
-                return Boolean.TRUE;
-            } else if (FALSE.equalsIgnoreCase(valueString)) {
-                return Boolean.FALSE;
-            }
         }
         return null;
     }

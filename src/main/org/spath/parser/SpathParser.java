@@ -7,8 +7,10 @@ import org.spath.SpathMatch;
 import org.spath.SpathName;
 import org.spath.SpathNameElement;
 import org.spath.SpathNameRelative;
+import org.spath.SpathNameStar;
 import org.spath.SpathNameStart;
 import org.spath.SpathOperator;
+import org.spath.SpathPredicateAnd;
 import org.spath.SpathPredicateBoolean;
 import org.spath.SpathPredicateNumber;
 import org.spath.SpathPredicateString;
@@ -16,6 +18,8 @@ import org.spath.SpathPredicateString;
 public class SpathParser {
     private static final String TRUE = "true";
     private static final String FALSE = "false";
+    private static final String AND = "and";
+    private static final String STAR = "*";
 
     SpathLexer lexer = null;
     
@@ -56,17 +60,17 @@ public class SpathParser {
         SpathName expr = null;
         if (accept(TokenType.OPERATOR, "/")) {
             String value =  name();
-            SpathNameStart ext = new SpathNameStart(value);
+            SpathName ext = (STAR.equals(value)) ? new SpathNameStar() : new SpathNameStart(value);
             ext.add(predicateOpt());
             expr = extension(ext);
         } else if (accept(TokenType.OPERATOR, "//")) {
             String value =  name();
-            SpathNameRelative ext = new SpathNameRelative(value);
+            SpathName ext = (STAR.equals(value)) ? new SpathNameStar(true) : new SpathNameRelative(value);
             ext.add(predicateOpt());
             expr = extension(ext);
         } else {
             String value = name();
-            SpathNameRelative ext = new SpathNameRelative(value);
+            SpathName ext = (STAR.equals(value)) ? new SpathNameStar(true) : new SpathNameRelative(value);
             ext.add(predicateOpt());
             expr = extension(ext);
         }
@@ -96,6 +100,8 @@ public class SpathParser {
             String value = lexer.getTokenValue();
             nextToken();
             return value;
+        } else if (accept(TokenType.DELIMITER, "*")) {
+            return "*";
         } else {
             throw exception("Expected a name");
         }
@@ -104,34 +110,51 @@ public class SpathParser {
     SpathMatch predicateOpt() {
         SpathMatch predicate = null;
         if (accept(TokenType.DELIMITER, "[")) {
-            if (accept(TokenType.DELIMITER, "@")) {
-                String name = name();
-                if (match(TokenType.OPERATOR)) {
-                    SpathOperator operator = predicateOperator();
-                    if (match(TokenType.STRING)) {
-                        String value = quotedString();
-                        predicate = new SpathPredicateString(name, operator, value);
-                    } else if (match(TokenType.DECIMAL)) {
-                        BigDecimal value = decimalNumber();
-                        predicate = new SpathPredicateNumber(name, operator, value);
-                    } else if (match(TokenType.IDENTIFIER) 
-                            && TRUE.equalsIgnoreCase(lexer.getTokenValue())) {
-                        predicate = new SpathPredicateBoolean(name, operator, Boolean.TRUE);
-                        nextToken();
-                    } else if (match(TokenType.IDENTIFIER) 
-                            && FALSE.equalsIgnoreCase(lexer.getTokenValue())) {
-                        predicate = new SpathPredicateBoolean(name, operator, Boolean.FALSE);
-                        nextToken();
-                    } else {
-                        throw exception("Predicate value expected.");
-                    }
+            predicate = predicateMult();
+            expect(TokenType.DELIMITER, "]", "Predicate must be closed with ']'");
+        }
+        return predicate;
+    }
+    
+    SpathMatch predicateMult() {
+        SpathMatch predicate = predicate();
+        while (match(TokenType.IDENTIFIER) 
+                && AND.equalsIgnoreCase(lexer.getTokenValue())) {
+            nextToken();
+            SpathMatch operand2 = predicate();
+            predicate = new SpathPredicateAnd(predicate, operand2);
+        }
+        return predicate;
+    }
+    
+    SpathMatch predicate() {
+        SpathMatch predicate = null;
+        if (accept(TokenType.DELIMITER, "@")) {
+            String name = name();
+            if (match(TokenType.OPERATOR)) {
+                SpathOperator operator = predicateOperator();
+                if (match(TokenType.STRING)) {
+                    String value = quotedString();
+                    predicate = new SpathPredicateString(name, operator, value);
+                } else if (match(TokenType.DECIMAL) || match(TokenType.NUMBER)) {
+                    BigDecimal value = decimalNumber();
+                    predicate = new SpathPredicateNumber(name, operator, value);
+                } else if (match(TokenType.IDENTIFIER) 
+                        && TRUE.equalsIgnoreCase(lexer.getTokenValue())) {
+                    predicate = new SpathPredicateBoolean(name, operator, Boolean.TRUE);
+                    nextToken();
+                } else if (match(TokenType.IDENTIFIER) 
+                        && FALSE.equalsIgnoreCase(lexer.getTokenValue())) {
+                    predicate = new SpathPredicateBoolean(name, operator, Boolean.FALSE);
+                    nextToken();
                 } else {
-                    predicate = new SpathPredicateString(name);
+                    throw exception("Predicate value expected.");
                 }
             } else {
-                throw exception("Attribute symbol '@' expected.");
+                predicate = new SpathPredicateString(name);
             }
-            expect(TokenType.DELIMITER, "]", "Predicate must be closed with ']'");
+        } else {
+            throw exception("Attribute symbol '@' expected.");
         }
         return predicate;
     }
@@ -165,7 +188,7 @@ public class SpathParser {
     }
     
     BigDecimal decimalNumber() {
-        if (match(TokenType.DECIMAL)) {
+        if (match(TokenType.DECIMAL) || match(TokenType.NUMBER)) {
             BigDecimal value = lexer.getTokenDecimal();
             nextToken();
             return value;

@@ -9,4 +9,6 @@ public interface SpathName extends SpathMatch {
     SpathType getType();
     
     SpathMatch getPredicate();
+    
+    public void add(SpathMatch matcher);
 }
