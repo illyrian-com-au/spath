@@ -73,7 +73,7 @@ public class SpathParserTest extends TestCase {
         result = result.getParent();
         assertSpathNameStart(result, "data");
     }
-
+    
     private void assertSpathNameElement(SpathMatch target, String name, SpathType type, int depth) {
         assertEquals(SpathNameElement.class, target.getClass());
         SpathNameElement start = (SpathNameElement)target;

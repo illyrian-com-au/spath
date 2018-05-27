@@ -1,8 +1,7 @@
 package org.spath.xml.stream;
 
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.XMLEvent;
+import javax.xml.stream.XMLStreamReader;
 
 import junit.framework.TestCase;
 
@@ -15,10 +14,6 @@ import org.spath.SpathNameStart;
 import org.spath.SpathOperator;
 import org.spath.SpathPredicateString;
 import org.spath.test.StringReadWriter;
-
-import com.sun.xml.internal.stream.events.CharacterEvent;
-import com.sun.xml.internal.stream.events.EndDocumentEvent;
-import com.sun.xml.internal.stream.events.StartElementEvent;
 
 public class SpathXmlStreamReaderTest extends TestCase {
     XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
