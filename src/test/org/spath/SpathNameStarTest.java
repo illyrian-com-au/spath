@@ -3,8 +3,8 @@ package org.spath;
 import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.spath.data.SpathEvent;
-import org.spath.data.SpathEventEvaluator;
+import org.spath.event.SpathEvent;
+import org.spath.event.SpathEventEvaluator;
 
 public class SpathNameStarTest extends TestCase {
     SpathEventEvaluator evaluator = new SpathEventEvaluator();
@@ -12,7 +12,7 @@ public class SpathNameStarTest extends TestCase {
     
     @Test
     public void testSimpleStar() {
-        SpathName star = new SpathNameStar();
+        SpathName star = new SpathNameStart();
         assertEquals("/*", star.toString());
 
         assertFalse("Should not match " + star, stack.match(star));
@@ -24,8 +24,8 @@ public class SpathNameStarTest extends TestCase {
 
     @Test
     public void testDoubleStar() {
-        SpathName star = new SpathNameStar();
-        SpathName dstar = new SpathNameStar(star);
+        SpathName star = new SpathNameStart();
+        SpathName dstar = new SpathNameElement(star);
         assertEquals("/*/*", dstar.toString());
 
         assertFalse("Should not match " + dstar, stack.match(dstar));
@@ -41,7 +41,7 @@ public class SpathNameStarTest extends TestCase {
 
     @Test
     public void testStarPhone() {
-        SpathName star = new SpathNameStar();
+        SpathName star = new SpathNameStart();
         SpathName dstar = new SpathNameElement(star, "phone");
         assertEquals("/*/phone", dstar.toString());
 
@@ -65,7 +65,7 @@ public class SpathNameStarTest extends TestCase {
 
     @Test
     public void testAnyStarPhone() {
-        SpathName star = new SpathNameStar(true);
+        SpathName star = new SpathNameRelative();
         SpathName dstar = new SpathNameElement(star, "phone");
         assertEquals("//*/phone", dstar.toString());
 
@@ -90,7 +90,7 @@ public class SpathNameStarTest extends TestCase {
 
     @Test
     public void testAnyStar() {
-        SpathName star = new SpathNameStar(true);
+        SpathName star = new SpathNameRelative();
         assertEquals("//*", star.toString());
 
         assertFalse("Should not match " + star, stack.match(star));
@@ -114,11 +114,12 @@ public class SpathNameStarTest extends TestCase {
 
     @Test
     public void testInvalidCharacters() {
+        new SpathNameStart(SpathNameElement.STAR);
         try {
-            new SpathNameStart("*");
+            new SpathNameStart("!");
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
-            assertEquals("Invalid character : '*' in SpathName: *", ex.getMessage());
+            assertEquals("Invalid character : '!' in SpathName: !", ex.getMessage());
         }
         try {
             new SpathNameStart("hello*world");

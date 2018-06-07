@@ -1,4 +1,4 @@
-package org.spath.data;
+package org.spath.event;
 
 import java.math.BigDecimal;
 

@@ -23,11 +23,6 @@ public class SpathEngineImpl<T> implements SpathEngine {
     }
     
     @Override
-    public boolean hasNext() {
-        return source.hasNext();
-    }
-    
-    @Override
     public boolean matchNext(SpathName base) throws SpathException {
         lastMatched = null;
         while (source.nextEvent(stack)) {
@@ -88,11 +83,6 @@ public class SpathEngineImpl<T> implements SpathEngine {
             return match(target);
         }
         return false;
-    }
-    
-    @Override
-    public SpathMatch getLastMatched() {
-        return lastMatched;
     }
     
     @Override

@@ -1,6 +1,6 @@
 package org.spath;
 
-public class SpathPredicateBoolean implements SpathMatch {
+public class SpathPredicateBoolean implements SpathPredicate {
     private static final String TRUE = "true";
     private static final String FALSE = "false";
 

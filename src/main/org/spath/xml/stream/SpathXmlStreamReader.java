@@ -8,7 +8,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.spath.SpathEventSource;
 import org.spath.SpathException;
 import org.spath.SpathStack;
-import org.spath.data.SpathEvent;
+import org.spath.event.SpathEvent;
 
 public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
     private final XMLStreamReader reader;
@@ -96,14 +96,5 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
             eventType = reader.next();
         }
         return buf.toString();
-    }
-    
-    @Override
-    public boolean hasNext() throws SpathException {
-        try {
-            return reader.hasNext();
-        } catch (Exception ex) {
-            throw new SpathException("Could not call hasNext()", ex);
-        }
     }
 }

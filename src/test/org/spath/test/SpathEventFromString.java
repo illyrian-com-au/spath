@@ -1,7 +1,7 @@
 package org.spath.test;
 
-import org.spath.data.SpathEvent;
-import org.spath.data.SpathProperty;
+import org.spath.event.SpathEvent;
+import org.spath.event.SpathProperty;
 
 public class SpathEventFromString {
     private static final String START = "(";

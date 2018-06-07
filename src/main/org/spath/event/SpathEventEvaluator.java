@@ -1,11 +1,9 @@
-package org.spath.data;
+package org.spath.event;
 
 import java.math.BigDecimal;
 
 import org.spath.SpathEvaluator;
 import org.spath.SpathNameElement;
-import org.spath.SpathNameRelative;
-import org.spath.SpathNameStar;
 import org.spath.SpathPredicateBoolean;
 import org.spath.SpathPredicateNumber;
 import org.spath.SpathPredicateString;
@@ -20,18 +18,6 @@ public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
         String targetValue = target.getName();
         String eventValue = event.getName();
         return targetValue.equals(eventValue);
-    }
-    
-    @Override
-    public boolean match(SpathNameRelative target, SpathEvent event) {
-        String targetValue = target.getName();
-        String eventValue = event.getName();
-        return targetValue.equals(eventValue);
-    }
-
-    @Override
-    public boolean match(SpathNameStar target, SpathEvent event) {
-        return true;
     }
     
     @Override

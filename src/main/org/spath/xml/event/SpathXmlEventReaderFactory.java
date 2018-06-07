@@ -9,13 +9,10 @@ import org.spath.SpathStack;
 
 public class SpathXmlEventReaderFactory {
     
-    SpathXmlEventReaderBridge createBridge(XMLEventReader reader) {
-        return new SpathXmlEventReaderBridge(reader);
-    }
-    
     public SpathEngine createEngine(XMLEventReader reader) {
-        SpathXmlEventReaderBridge bridge = createBridge(reader);
-        SpathStack<StartElement> stack = new SpathStack<>(bridge);
+        SpathXmlEventReader bridge = new SpathXmlEventReader(reader);
+        SpathXmlEventEvaluator evaluator = new SpathXmlEventEvaluator();
+        SpathStack<StartElement> stack = new SpathStack<>(evaluator);
         return new SpathEngineImpl<StartElement>(stack, bridge);
     }
 }

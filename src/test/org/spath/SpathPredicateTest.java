@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.spath.data.SpathEvent;
-import org.spath.data.SpathEventEvaluator;
+import org.spath.event.SpathEvent;
+import org.spath.event.SpathEventEvaluator;
+
 import static org.spath.test.SpathEventFromString.toEvent;
 
 public class SpathPredicateTest extends TestCase {
@@ -135,7 +136,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeEquals() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicate attr = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
         element.add(attr);
         assertEquals("/*[@type='decimal']", element.toString());
@@ -149,7 +150,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeNotEquals() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicate attr = new SpathPredicateString("type", SpathOperator.NE, "decimal");
         element.add(attr);
         assertEquals("/*[@type!='decimal']", element.toString());
@@ -167,7 +168,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeEqualsNumber() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicateNumber attr = new SpathPredicateNumber("amount", SpathOperator.EQ, new BigDecimal("123.456"));
         element.add(attr);
         assertEquals("/*[@amount=123.456]", element.toString());
@@ -184,7 +185,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeNotEqualsNumber() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicateNumber attr = new SpathPredicateNumber("amount", SpathOperator.NE, new BigDecimal("123.456"));
         element.add(attr);
         assertEquals("/*[@amount!=123.456]", element.toString());
@@ -201,7 +202,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeLessThanNumber() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathOperator.LT, new BigDecimal("30"));
         element.add(attr);
         assertEquals("/*[@price<30]", element.toString());
@@ -221,7 +222,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeGreaterThanNumber() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathOperator.GT, new BigDecimal("30"));
         element.add(attr);
         assertEquals("/*[@price>30]", element.toString());
@@ -241,7 +242,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeLessEqualNumber() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathOperator.LE, new BigDecimal("30"));
         element.add(attr);
         assertEquals("/*[@price<=30]", element.toString());
@@ -261,7 +262,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeGreaterEqualNumber() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathOperator.GE, new BigDecimal("30"));
         element.add(attr);
         assertEquals("/*[@price>=30]", element.toString());
@@ -281,7 +282,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeAndNumber() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicateNumber op1 = new SpathPredicateNumber("price", SpathOperator.GE, new BigDecimal("30"));
         SpathPredicateNumber op2 = new SpathPredicateNumber("price", SpathOperator.LT, new BigDecimal("40"));
         SpathPredicateAnd expr = new SpathPredicateAnd(op1, op2);
@@ -306,7 +307,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeOrNumber() {
-        SpathNameStar element = new SpathNameStar();
+        SpathNameStart element = new SpathNameStart();
         SpathPredicateNumber op1 = new SpathPredicateNumber("price", SpathOperator.LT, new BigDecimal("30"));
         SpathPredicateNumber op2 = new SpathPredicateNumber("price", SpathOperator.GE, new BigDecimal("40"));
         SpathPredicateOr expr = new SpathPredicateOr(op1, op2);
@@ -331,7 +332,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testRelativeStarAttributeEquals() {
-        SpathNameStar element = new SpathNameStar(true);
+        SpathNameRelative element = new SpathNameRelative();
         SpathPredicate attr = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
         element.add(attr);
         assertEquals("//*[@type='decimal']", element.toString());

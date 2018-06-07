@@ -3,8 +3,8 @@ package org.spath.test;
 import java.util.List;
 
 import org.junit.Test;
-import org.spath.data.SpathEvent;
-import org.spath.data.SpathProperty;
+import org.spath.event.SpathEvent;
+import org.spath.event.SpathProperty;
 
 import junit.framework.TestCase;
 

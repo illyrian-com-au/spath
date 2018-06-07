@@ -3,7 +3,7 @@ package org.spath;
 import java.math.BigDecimal;
 
 
-public class SpathPredicateNumber implements SpathMatch {
+public class SpathPredicateNumber implements SpathPredicate {
     private final String name;
     private final SpathOperator operator;
     private final BigDecimal value;

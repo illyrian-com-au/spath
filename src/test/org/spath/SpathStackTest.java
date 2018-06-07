@@ -6,41 +6,12 @@ import javax.xml.stream.events.StartElement;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.spath.xml.event.SpathXmlEventEvaluator;
 
 public class SpathStackTest extends TestCase {
     
-    SpathEvaluator<StartElement> matcher = new SpathEvaluator<StartElement>() {
-        @Override
-        public boolean match(SpathNameElement target, StartElement event) {
-            return target.getName().equals(event.getName().toString());
-        }
-        
-        @Override
-        public boolean match(SpathNameRelative target, StartElement event) {
-            return target.getName().equals(event.getName().toString());
-        }
+    SpathEvaluator<StartElement> matcher = new SpathXmlEventEvaluator(); 
 
-        @Override
-        public boolean match(SpathNameStar target, StartElement event) {
-            return true;
-        }
-        
-        @Override
-        public boolean match(SpathPredicateString target, StartElement event) {
-            return false;
-        }
-
-        @Override
-        public boolean match(SpathPredicateNumber target, StartElement event) {
-            return false;
-        }
-
-        @Override
-        public boolean match(SpathPredicateBoolean target, StartElement event) {
-            return false;
-        }
-    };
-    
     public static class EventSourceStartElement implements SpathEventSource<StartElement> {
         XMLEventFactory xmlFactory = XMLEventFactory.newFactory();
 

@@ -1,4 +1,4 @@
-package org.spath.data;
+package org.spath.event;
 
 import java.math.BigDecimal;
 
@@ -15,8 +15,8 @@ import org.spath.SpathPredicateBoolean;
 import org.spath.SpathPredicateNumber;
 import org.spath.SpathPredicateString;
 import org.spath.SpathStack;
-import org.spath.data.SpathEvent;
-import org.spath.data.SpathEventEvaluator;
+import org.spath.event.SpathEvent;
+import org.spath.event.SpathEventEvaluator;
 import org.spath.test.SpathEventTestSource;
 
 public class SpathEventEvaluatorTest extends TestCase {

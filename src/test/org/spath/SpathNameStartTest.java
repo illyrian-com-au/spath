@@ -3,8 +3,8 @@ package org.spath;
 import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.spath.data.SpathEvent;
-import org.spath.data.SpathEventEvaluator;
+import org.spath.event.SpathEvent;
+import org.spath.event.SpathEventEvaluator;
 import org.spath.test.SpathEventTestSource;
 
 public class SpathNameStartTest extends TestCase {

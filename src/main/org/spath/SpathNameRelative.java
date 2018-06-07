@@ -10,4 +10,12 @@ public class SpathNameRelative extends SpathNameElement implements SpathName {
     public SpathNameRelative(SpathName parent, String name) {
         super(parent, name, SpathType.RELATIVE);
     }
+    
+    public SpathNameRelative() {
+        super(STAR, SpathType.RELATIVE);
+    }
+    
+    public SpathNameRelative(SpathName parent) {
+        super(parent, STAR, SpathType.RELATIVE);
+    }
 }

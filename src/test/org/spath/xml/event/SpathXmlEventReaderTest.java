@@ -20,7 +20,7 @@ import com.sun.xml.internal.stream.events.CharacterEvent;
 import com.sun.xml.internal.stream.events.EndDocumentEvent;
 import com.sun.xml.internal.stream.events.StartElementEvent;
 
-public class SpathXmlReaderTest extends TestCase {
+public class SpathXmlEventReaderTest extends TestCase {
     XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
     SpathXmlEventReaderFactory factory = new SpathXmlEventReaderFactory();
     

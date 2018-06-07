@@ -10,5 +10,6 @@ public interface SpathName extends SpathMatch {
     
     SpathMatch getPredicate();
     
+    // FIXME get rid of this ...
     public void add(SpathMatch matcher);
 }

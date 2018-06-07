@@ -2,12 +2,17 @@ package org.spath;
 
 
 public class SpathNameElement implements SpathName {
+    public static final String STAR = "*";
+
     protected final SpathName parent;
     protected final String name;
     protected final int depth;
     protected final SpathType type;
     private SpathMatch predicate = null;
 
+    public SpathNameElement(SpathName parent) {
+        this(parent, STAR);
+    }
     public SpathNameElement(SpathName parent, String name) {
         validate(parent);
         validate(name);
@@ -17,42 +22,51 @@ public class SpathNameElement implements SpathName {
         this.type = (parent.getType() == SpathType.ROOT) ? SpathType.ROOT : SpathType.ELEMENT;
     }
     
-    protected SpathNameElement(String name, SpathType type) {
+    SpathNameElement(String name, SpathType type) {
         validate(name);
+        validate(type);
         this.parent = null;
         this.name = name;
         this.depth = 1;
         this.type = type;
     }
     
-    protected SpathNameElement(SpathName parent, String name, SpathType type) {
+    SpathNameElement(SpathName parent, String name, SpathType type) {
         validate(parent);
         validate(name);
-        validate(type);
+        validate(parent, type);
         this.parent = parent;
         this.name = name;
         this.type = type;
         this.depth = parent.getDepth() + 1;
     }
     
-    private void validate(SpathName parent) {
+    void validate(SpathName parent) {
         if (parent == null) {
             throw new IllegalArgumentException("parent cannot be null.");
         }
     }
     
-    private void validate(SpathType type) {
-        if (type == SpathType.ROOT) {
+    void validate(SpathName parent, SpathType type) {
+        if (type == SpathType.ROOT && parent != null && parent.getType() != SpathType.ROOT) {
             throw new IllegalArgumentException("Root can only be used at the start of a spath.");
         }
     }
     
-    protected void validate(String name) {
-        int index = -1;
-        for (index=0; index<name.length(); index++) {
-            char ch = name.charAt(index);
-            if (!Character.isLetterOrDigit(ch)) {
-                throw new IllegalArgumentException("Invalid character : '" + name.charAt(index) + "' in SpathName: " + name);
+    void validate(SpathType type) {
+        if (type == SpathType.ELEMENT) {
+            throw new IllegalArgumentException("Type at start of path must be ROOT or RELATIVE.");
+        }
+    }
+    
+    void validate(String name) {
+        if (!isWild(name)) {
+            int index = -1;
+            for (index=0; index<name.length(); index++) {
+                char ch = name.charAt(index);
+                if (!Character.isLetterOrDigit(ch) || ch == ':') {
+                    throw new IllegalArgumentException("Invalid character : '" + name.charAt(index) + "' in SpathName: " + name);
+                }
             }
         }
     }
@@ -64,9 +78,13 @@ public class SpathNameElement implements SpathName {
             predicate = new SpathPredicateAnd(predicate, matcher);
         }
     }
+    
+    public boolean isWild(String name) {
+        return STAR.equals(name);
+    }
 
     public <T> boolean match(SpathEvaluator<T> matcher, T event) {
-        if (matcher.match(this, event)) {
+        if (matcher.match(this, event) || isWild(getName())) {
             return matchPredicate(matcher, event);
         }
         return false;

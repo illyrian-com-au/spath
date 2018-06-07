@@ -2,7 +2,7 @@ package org.spath.test;
 
 import org.spath.SpathEventSource;
 import org.spath.SpathStack;
-import org.spath.data.SpathEvent;
+import org.spath.event.SpathEvent;
 
 
 public class SpathEventTestSource implements SpathEventSource<SpathEvent> {

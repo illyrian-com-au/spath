@@ -1,8 +1,5 @@
 package org.spath;
 
-import java.math.BigDecimal;
-
-
 public class SpathPredicateString implements SpathPredicate {
     private final String name;
     private final SpathOperator operator;
@@ -18,14 +15,17 @@ public class SpathPredicateString implements SpathPredicate {
         this.value = value;
     }
     
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public SpathOperator getOperator() {
         return operator;
     }
 
+    @Override
     public String getValue() {
         return value;
     }
