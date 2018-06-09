@@ -64,11 +64,41 @@ public class SpathNameBuilderTest extends TestCase {
     }
 
     @Test
+    public void testRootPathIndirect() {
+        SpathName element = new SpathNameBuilder(
+                    new SpathNameBuilder()
+                            .withName("data")
+                            .withType(SpathType.ROOT)
+                            .build())
+                .withName("address")
+                .build();
+        assertNotNull("SpathNameBuilder returned null", element.toString());
+        assertEquals("/data/address", element.toString());
+        assertEquals(SpathType.ROOT, element.getType());
+        assertEquals(SpathType.ROOT, element.getParent().getType());
+    }
+
+    @Test
     public void testRelativePath() {
         SpathName element = builder
                 .withName("data")
                 .withType(SpathType.RELATIVE)
                 .next()
+                .withName("address")
+                .build();
+        assertNotNull("SpathNameBuilder returned null", element.toString());
+        assertEquals("//data/address", element.toString());
+        assertEquals(SpathType.ELEMENT, element.getType());
+        assertEquals(SpathType.RELATIVE, element.getParent().getType());
+    }
+
+    @Test
+    public void testRelativePath2() {
+        SpathName element = new SpathNameBuilder(
+                        new SpathNameBuilder()
+                            .withName("data")
+                            .withType(SpathType.RELATIVE)
+                            .build())
                 .withName("address")
                 .build();
         assertNotNull("SpathNameBuilder returned null", element.toString());
@@ -86,6 +116,26 @@ public class SpathNameBuilderTest extends TestCase {
                 .withName("address")
                 .withType(SpathType.RELATIVE)
                 .next()
+                .withName("street")
+                .build();
+        assertNotNull("SpathNameBuilder returned null", element.toString());
+        assertEquals("/data//address/street", element.toString());
+        assertEquals(SpathType.ELEMENT, element.getType());
+        assertEquals(SpathType.RELATIVE, element.getParent().getType());
+        assertEquals(SpathType.ROOT, element.getParent().getParent().getType());
+    }
+
+    @Test
+    public void testAbsoluteRelativePath2() {
+        SpathName element = new SpathNameBuilder(
+                    new SpathNameBuilder(
+                         new SpathNameBuilder()
+                         .withName("data")
+                         .withType(SpathType.ROOT)
+                         .build())
+                    .withName("address")
+                    .withType(SpathType.RELATIVE)
+                    .build())
                 .withName("street")
                 .build();
         assertNotNull("SpathNameBuilder returned null", element.toString());

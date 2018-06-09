@@ -46,11 +46,10 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testAndAttributeEquals() {
-        SpathNameStart element = new SpathNameStart("amount");
         SpathPredicate attr1 = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
         SpathPredicate attr2 = new SpathPredicateString("currency", SpathOperator.EQ, "USD");
         SpathMatch and1 = new SpathPredicateAnd(attr1, attr2);
-        element.add(and1);
+        SpathNameStart element = new SpathNameStart("amount", and1);
         assertEquals("/amount[@type='decimal' and @currency='USD']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));

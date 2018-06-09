@@ -11,27 +11,42 @@ public class SpathNameElement implements SpathName {
     private SpathMatch predicate = null;
 
     public SpathNameElement(SpathName parent) {
-        this(parent, STAR);
+        this(parent, STAR, null);
     }
+    
+    SpathNameElement(SpathName parent, SpathMatch predicate) {
+        this(parent, STAR, predicate);
+    }
+    
     public SpathNameElement(SpathName parent, String name) {
+        this(parent, name, null);
+    }
+    
+    SpathNameElement(SpathName parent, String name, SpathMatch predicate) {
         validate(parent);
         validate(name);
         this.parent = parent;
         this.name = name;
         this.depth = parent.getDepth() + 1;
         this.type = (parent.getType() == SpathType.ROOT) ? SpathType.ROOT : SpathType.ELEMENT;
+        if (predicate != null) {
+            add(predicate);
+        }
     }
     
-    SpathNameElement(String name, SpathType type) {
+    SpathNameElement(String name, SpathType type, SpathMatch predicate) {
         validate(name);
         validate(type);
         this.parent = null;
         this.name = name;
         this.depth = 1;
         this.type = type;
+        if (predicate != null) {
+            add(predicate);
+        }
     }
     
-    SpathNameElement(SpathName parent, String name, SpathType type) {
+    SpathNameElement(SpathName parent, String name, SpathType type, SpathMatch predicate) {
         validate(parent);
         validate(name);
         validate(parent, type);
@@ -39,6 +54,9 @@ public class SpathNameElement implements SpathName {
         this.name = name;
         this.type = type;
         this.depth = parent.getDepth() + 1;
+        if (predicate != null) {
+            add(predicate);
+        }
     }
     
     void validate(SpathName parent) {

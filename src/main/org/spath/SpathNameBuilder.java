@@ -16,7 +16,7 @@ public class SpathNameBuilder {
     }
     
     /*
-     * setParent is private because it must be set first to determine type.
+     * setParent is private because it should be used either from the constructor or next method.
      */
     private void setParent(SpathName parent) {
         if (parent.getType() == SpathType.ROOT) {
@@ -68,7 +68,7 @@ public class SpathNameBuilder {
     }
     
     public SpathNameBuilder next() {
-        parent = build();
+        setParent(build());
         return this;
     }
     
@@ -83,20 +83,19 @@ public class SpathNameBuilder {
         SpathNameElement element = null;
         if (parent == null) { 
             if (SpathType.RELATIVE == type) {
-                element = new SpathNameRelative(name);
+                element = new SpathNameRelative(name, predicate);
             } else if (SpathType.ROOT == type) {
-                element = new SpathNameStart(name);
+                element = new SpathNameStart(name, predicate);
             } else {
                 throw new IllegalArgumentException("Type at start of path must be ROOT or RELATIVE.");
             }
         } else if (SpathType.RELATIVE == type) {
-            element = new SpathNameRelative(parent, name);
+            element = new SpathNameRelative(parent, name, predicate);
         } else {
-            element = new SpathNameElement(parent, name);
+            element = new SpathNameElement(parent, name, predicate);
         }
-        element.add(predicate);
+        //element.add(predicate);
         reset();
-        setParent(element);
         return element;
     }
     
