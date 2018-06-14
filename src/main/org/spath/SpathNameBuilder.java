@@ -94,8 +94,8 @@ public class SpathNameBuilder {
         } else {
             element = new SpathNameElement(parent, name, predicate);
         }
-        //element.add(predicate);
         reset();
+        type = SpathType.RELATIVE;
         return element;
     }
     

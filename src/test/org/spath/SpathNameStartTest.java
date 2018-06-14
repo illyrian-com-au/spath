@@ -211,13 +211,14 @@ public class SpathNameStartTest extends TestCase {
         engine.add(new SpathNameElement(address, "suburb"));
         engine.add(new SpathNameElement(address, "postcode"));
 
-        Address addr = new Address();
+        Address addr = null;
         while (engine.matchNext()) {
             if (engine.match(address)) {
                 addr = absoluteAddress(engine, address);
             }
         }
         assertEquals("Stack size should be zero", 0, stack.size());
+        assertNotNull("Address addr should not be null", addr);
         assertEquals("1 Erehwon St", addr.street);
         assertEquals("Melbourne", addr.suburb);
         assertEquals("3000", addr.postcode);
@@ -257,13 +258,14 @@ public class SpathNameStartTest extends TestCase {
         engine.add(new SpathNameElement(address, "suburb"));
         engine.add(new SpathNameElement(address, "postcode"));
 
-        Address addr = new Address();
+        Address addr = null;
         while (engine.matchNext()) {
             if (engine.partial(address)) {
                 addr = relativeAddress(engine, address);
             }
         }
         assertEquals("Stack size should be zero", 0, stack.size());
+        assertNotNull("Address addr should not be null", addr);
         assertEquals("1 Erehwon St", addr.street);
         assertEquals("Melbourne", addr.suburb);
         assertEquals("3000", addr.postcode);

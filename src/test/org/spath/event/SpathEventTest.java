@@ -14,30 +14,40 @@ import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventEvaluator;
 
 public class SpathEventTest extends TestCase {
+    SpathEventBuilder builder = new SpathEventBuilder();
+
     @Test
     public void testSpathEvent() throws Exception {
-        SpathEvent data = new SpathEvent("data");
+        SpathEvent data = builder.withName("data").build();
         assertEquals("data", data.toString());
     }
 
     @Test
     public void testSpathEventProperties() throws Exception {
-        SpathEvent data = new SpathEvent("data");
-        data.addProperty("currency", "AUD");
-        data.addProperty("amount", "10.25");
+        SpathEvent data = builder
+                .withName("data")
+                .withProperty("currency", "AUD")
+                .withProperty("amount", "10.25")
+                .build();
         assertEquals("data(currency='AUD', amount='10.25')", data.toString());
     }
     
     @Test
     public void testSpathEventEvaluator() throws Exception {
-        SpathEvent event1 = new SpathEvent("data");
-        event1.addProperty("currency", "AUD");
-        event1.addProperty("amount", "10.25");
-        event1.addProperty("paid", "True");
-        SpathEvent event2 = new SpathEvent("data");
-        event2.addProperty("date", "2018-03-21");
+        SpathEvent event1 = builder
+                .withName("data")
+                .withProperty("currency", "AUD")
+                .withProperty("amount", "10.25")
+                .withProperty("paid", "True")
+                .build();
+        assertEquals("data(currency='AUD', amount='10.25', paid='True')", event1.toString());
+        SpathEvent event2 = builder
+                .withName("data")
+                .withProperty("date", "2018-03-21")
+                .build();
+        assertEquals("data(date='2018-03-21')", event2.toString());
+
         SpathEventEvaluator eval = new SpathEventEvaluator();
-        
         SpathNameStart spath = new SpathNameStart("data");
         assertTrue("match(\"data\")", eval.match(spath, event1));
         assertTrue("match(\"data\")", eval.match(spath, event2));

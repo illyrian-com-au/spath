@@ -9,6 +9,7 @@ import org.spath.SpathEngine;
 import org.spath.SpathEngineImpl;
 import org.spath.SpathEvaluator;
 import org.spath.SpathName;
+import org.spath.SpathNameBuilder;
 import org.spath.SpathNameStart;
 import org.spath.SpathOperator;
 import org.spath.SpathPredicateBoolean;
@@ -20,6 +21,8 @@ import org.spath.event.SpathEventEvaluator;
 import org.spath.test.SpathEventTestSource;
 
 public class SpathEventEvaluatorTest extends TestCase {
+    SpathEventBuilder builder = new SpathEventBuilder();
+    SpathNameBuilder spath = new SpathNameBuilder();
     SpathEvaluator<SpathEvent> matcher = new SpathEventEvaluator();
     
     SpathEngine createEngine(SpathEvent [] list) {
@@ -32,11 +35,11 @@ public class SpathEventEvaluatorTest extends TestCase {
     @Test
     public void testTextElement() throws Exception {
         SpathEvent [] list = {
-                new SpathEvent("data").setText("Hello World"),
+                builder.withName("data").withText("Hello World").build(),
                 null
         };
         SpathEngine engine = createEngine(list);
-        SpathName data = new SpathNameStart("data");
+        SpathName data = spath.withName("data").build();
         engine.add(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -50,15 +53,16 @@ public class SpathEventEvaluatorTest extends TestCase {
     @Test
     public void testPredicateStringEquals() throws Exception {
         SpathEvent [] list = {
-                new SpathEvent("data").addProperty("currency", "AUD"),
+                builder.withName("data").withProperty("currency", "AUD").build(),
                 null,
-                new SpathEvent("data").addProperty("currency", "USD"),
+                builder.withName("data").withProperty("currency", "USD").build(),
                 null,
         };
         SpathEngine engine = createEngine(list);
-        SpathNameStart data = new SpathNameStart("data");
-        SpathNameStart usd = new SpathNameStart("data");
-        usd.add(new SpathPredicateString("currency", SpathOperator.EQ, "USD"));
+        SpathName data = spath.withName("data").build();
+        SpathName usd = spath.withName("data")
+                .withPredicate("currency", SpathOperator.EQ, "USD")
+                .build();
         engine.add(data);
         // /data(currency="AUD") 
         assertTrue("matchNext()", engine.matchNext());
@@ -74,15 +78,17 @@ public class SpathEventEvaluatorTest extends TestCase {
     @Test
     public void testPredicateNumberEquals() throws Exception {
         SpathEvent [] list = {
-                new SpathEvent("data").addProperty("amount", new BigDecimal("12.50")),
+                builder.withName("data").withProperty("amount", new BigDecimal("12.50")).build(),
                 null,
-                new SpathEvent("data").addProperty("amount", new BigDecimal("10.25")),
+                builder.withName("data").withProperty("amount", new BigDecimal("10.25")).build(),
                 null,
         };
         SpathEngine engine = createEngine(list);
-        SpathNameStart data = new SpathNameStart("data");
-        SpathNameStart usd = new SpathNameStart("data");
-        usd.add(new SpathPredicateNumber("amount", SpathOperator.LE, new BigDecimal("10.25")));
+        SpathName data = spath.withName("data").build();
+        SpathName usd = spath.withName("data")
+                .withPredicate("amount", SpathOperator.LE, new BigDecimal("10.25"))
+                .build();
+        engine.add(usd);
         engine.add(data);
         // /data(amount=12.50) 
         assertTrue("matchNext()", engine.matchNext());
@@ -98,15 +104,17 @@ public class SpathEventEvaluatorTest extends TestCase {
     @Test
     public void testPredicateNumberEqualsString() throws Exception {
         SpathEvent [] list = {
-                new SpathEvent("data").addProperty("amount", "12.50"),
+                builder.withName("data").withProperty("amount", new BigDecimal("12.50")).build(),
                 null,
-                new SpathEvent("data").addProperty("amount", "10.25"),
+                builder.withName("data").withProperty("amount", new BigDecimal("10.25")).build(),
                 null,
         };
         SpathEngine engine = createEngine(list);
-        SpathNameStart data = new SpathNameStart("data");
-        SpathNameStart usd = new SpathNameStart("data");
-        usd.add(new SpathPredicateNumber("amount", SpathOperator.LE, new BigDecimal("10.25")));
+        SpathName data = spath.withName("data").build();
+        SpathName usd = spath.withName("data")
+                .withPredicate("amount", SpathOperator.LE, new BigDecimal("10.25"))
+                .build();
+        engine.add(usd);
         engine.add(data);
         // /data(amount=12.50) 
         assertTrue("matchNext()", engine.matchNext());
@@ -122,15 +130,17 @@ public class SpathEventEvaluatorTest extends TestCase {
     @Test
     public void testPredicateBooleanEquals() throws Exception {
         SpathEvent [] list = {
-                new SpathEvent("data").addProperty("paid", new Boolean(false)),
+                builder.withName("data").withProperty("paid", new Boolean(false)).build(),
                 null,
-                new SpathEvent("data").addProperty("paid", new Boolean(true)),
+                builder.withName("data").withProperty("paid", Boolean.TRUE).build(),
                 null,
         };
         SpathEngine engine = createEngine(list);
-        SpathNameStart data = new SpathNameStart("data");
-        SpathNameStart paid = new SpathNameStart("data");
-        paid.add(new SpathPredicateBoolean("paid", SpathOperator.EQ, new Boolean(true)));
+        SpathName data = spath.withName("data").build();
+        SpathName paid = spath.withName("data")
+                .withPredicate("paid", SpathOperator.EQ, new Boolean(true))
+                .build();
+        engine.add(paid);
         engine.add(data);
         // /data(paid=true) 
         assertTrue("matchNext()", engine.matchNext());
@@ -146,15 +156,17 @@ public class SpathEventEvaluatorTest extends TestCase {
     @Test
     public void testPredicateBooleanEqualsString() throws Exception {
         SpathEvent [] list = {
-                new SpathEvent("data").addProperty("paid", "false"),
+                builder.withName("data").withProperty("paid", "false").build(),
                 null,
-                new SpathEvent("data").addProperty("paid", "true"),
+                builder.withName("data").withProperty("paid", "true").build(),
                 null,
         };
         SpathEngine engine = createEngine(list);
-        SpathNameStart data = new SpathNameStart("data");
-        SpathNameStart paid = new SpathNameStart("data");
-        paid.add(new SpathPredicateBoolean("paid", SpathOperator.EQ, new Boolean(true)));
+        SpathName data = spath.withName("data").build();
+        SpathName paid = spath.withName("data")
+                .withPredicate("paid", SpathOperator.EQ, new Boolean(true))
+                .build();
+        engine.add(paid);
         engine.add(data);
         // /data(paid=true) 
         assertTrue("matchNext()", engine.matchNext());

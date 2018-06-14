@@ -1,6 +1,7 @@
 package org.spath.test;
 
 import org.spath.event.SpathEvent;
+import org.spath.event.SpathEventBuilder;
 import org.spath.event.SpathProperty;
 
 public class SpathEventFromString {
@@ -21,15 +22,16 @@ public class SpathEventFromString {
     }
     
     public static SpathEvent toEvent(String value) {
+        SpathEventBuilder builder = new SpathEventBuilder();
         String name = getName(value);
-        SpathEvent event = new SpathEvent(name);
+        builder.withName(name);
         String attrString = getAttributesAsString(value);
         String [] attributes = toArray(attrString, ",", 0);
         for (String attr : attributes) {
             SpathProperty property = toProperty(attr);
-            event.addProperty(property);
+            builder.withProperty(property);
         }
-        return event;
+        return builder.build();
     }
     
     public static SpathProperty toProperty(String propertyString) {

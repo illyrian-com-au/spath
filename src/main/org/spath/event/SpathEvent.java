@@ -5,11 +5,17 @@ import java.util.List;
 
 public class SpathEvent {
     private final String name;
-    private final ArrayList<SpathProperty> properties = new ArrayList<>();
+    private final List<SpathProperty> properties;
     private String text;
     
+    public SpathEvent(String name, List<SpathProperty> properties) {
+        this.name = name;
+        this.properties = properties;
+    }
+
     public SpathEvent(String name) {
         this.name = name;
+        properties = new ArrayList<>();
     }
 
     public String getName() {
@@ -20,16 +26,6 @@ public class SpathEvent {
         return properties;
     }
     
-    public SpathEvent addProperty(SpathProperty property) {
-        properties.add(property);
-        return this;
-    }
-    
-    public SpathEvent addProperty(String name, Object value) {
-        return addProperty(new SpathProperty(name, value));
-    }
-
-
     public String getText() {
         return text;
     }

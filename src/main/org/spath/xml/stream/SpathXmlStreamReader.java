@@ -9,6 +9,7 @@ import org.spath.SpathEventSource;
 import org.spath.SpathException;
 import org.spath.SpathStack;
 import org.spath.event.SpathEvent;
+import org.spath.event.SpathEventBuilder;
 
 public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
     private final XMLStreamReader reader;
@@ -25,10 +26,16 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
             while (reader.hasNext()) {
                 int event = nextEvent();
                 if (event == XMLStreamReader.START_ELEMENT) {
-                    QName name = reader.getName();
-                    SpathEvent element = new SpathEvent(name.toString());
-                    populateEvent(element);
-                    engine.push(element);
+                    SpathEventBuilder builder = new SpathEventBuilder();
+                    QName qname = reader.getName();
+                    builder.withName(qname.toString());
+                    int size = reader.getAttributeCount();
+                    for (int index=0; index<size; index++) {
+                        String name = reader.getAttributeLocalName(index);
+                        String value = reader.getAttributeValue(index);
+                        builder.withProperty(name, value);
+                    }
+                    engine.push(builder.build());
                     return true;
                 } else if (event == XMLStreamReader.END_ELEMENT) {
                     engine.pop();
@@ -54,15 +61,6 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
             return "";
         } catch (XMLStreamException ex) {
             throw new SpathException("Could not peek nextEvent", ex);
-        }
-    }
-    
-    private void populateEvent(SpathEvent event) {
-        int size = reader.getAttributeCount();
-        for (int index=0; index<size; index++) {
-            String name = reader.getAttributeLocalName(index);
-            String value = reader.getAttributeValue(index);
-            event.addProperty(name, value);
         }
     }
     
