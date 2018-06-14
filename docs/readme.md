@@ -38,6 +38,10 @@ Spath predicates have the general form
 <tr><td> [@name]           </th><th> Selects nodes where the attribute "name" exists </th></tr>
 <tr><td> [@name='value']   </th><th> Selects nodes where "name" is equal to value </th></tr>
 <tr><td> [@name!='value']  </th><th> Selects nodes where "name" is not equal to value </th></tr>
+<tr><td> [@check=true]     </th><th> Selects nodes where "check" is equal to 'true' (case insensitive)</th></tr>
+<tr><td> [@check!=True]    </th><th> Selects nodes where "check" is not equal to 'true' (case insensitive)</th></tr>
+<tr><td> [@check=false]    </th><th> Selects nodes where "check" is equal to 'false' (case insensitive)</th></tr>
+<tr><td> [@check!=FALSE]   </th><th> Selects nodes where "check" is not equal to 'false' (case insensitive)</th></tr>
 <tr><td> [@value=3.141]    </th><th> Selects nodes where "value" is equal to the decimal number 3.141 </th></tr>
 <tr><td> [@value!=3.141]   </th><th> Selects nodes where "value" is not equal to the decimal number 3.141 </th></tr>
 <tr><td> [@price<1.25]     </th><th> Selects nodes where "price" is less than the number 1.25 </th></tr>
@@ -47,3 +51,5 @@ Spath predicates have the general form
 <tr><td> [@price>=1.00 and @price<2.00] </th><th> Selects nodes where both conditions are true </th></tr>
 <tr><td> [@price<1.00 or @price>=2.00]  </th><th> Selects nodes where either condition is true </th></tr>
 </table>
+
+Note that boolean comparisons are case insensitive while string comparisons are not.
