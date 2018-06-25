@@ -15,7 +15,7 @@ public class SpathEvent {
 
     public SpathEvent(String name) {
         this.name = name;
-        properties = new ArrayList<>();
+        properties = new ArrayList<SpathProperty>();
     }
 
     public String getName() {

@@ -49,7 +49,7 @@ public class SpathEventBuilder {
     public void reset() {
         name = null;
         text = null;
-        properties = new ArrayList<>();
+        properties = new ArrayList<SpathProperty>();
     }
     
     public SpathEvent build() {

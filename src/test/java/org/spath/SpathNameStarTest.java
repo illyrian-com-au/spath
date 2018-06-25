@@ -8,7 +8,7 @@ import org.spath.event.SpathEventEvaluator;
 
 public class SpathNameStarTest extends TestCase {
     SpathEventEvaluator evaluator = new SpathEventEvaluator();
-    SpathStack<SpathEvent> stack = new SpathStack<>(evaluator);
+    SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
     
     @Test
     public void testSimpleStar() {

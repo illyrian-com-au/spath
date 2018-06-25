@@ -13,7 +13,7 @@ public class SpathEngineImpl<T> implements SpathEngine {
     public SpathEngineImpl(SpathStack<T> stack, SpathEventSource<T> source) {
         this.stack = stack;
         this.source = source;
-        pathMap = new HashMap<>();
+        pathMap = new HashMap<String, SpathName>();
     }
     
     @Override

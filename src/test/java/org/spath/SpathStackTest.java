@@ -54,9 +54,9 @@ public class SpathStackTest extends TestCase {
         }
     };
 
-    SpathStack<StartElement> spath = new SpathStack<>(matcher);
+    SpathStack<StartElement> spath = new SpathStack<StartElement>(matcher);
     EventSourceStartElement eventSource = new EventSourceStartElement();
-    SpathEngine engine = new SpathEngineImpl<>(spath, eventSource);
+    SpathEngine engine = new SpathEngineImpl<StartElement>(spath, eventSource);
     
     @Test
     public void testSimpleStartElement() {
@@ -82,8 +82,8 @@ public class SpathStackTest extends TestCase {
     
     @Test
     public void testStreamStack() throws SpathException {
-        String [] emptyList = new String [] {"GWML", "header", "address", null, null, "trade", "details", null, null, null};
-        eventSource.setList(emptyList);
+        String [] eventList = new String [] {"GWML", "header", "address", null, null, "trade", "details", null, null, null};
+        eventSource.setList(eventList);
         SpathStack<StartElement> stack = new SpathStack<StartElement>(matcher);
         assertTrue("GWML", eventSource.nextEvent(stack));
         assertEquals("[<GWML>]", stack.toString());
@@ -148,7 +148,7 @@ public class SpathStackTest extends TestCase {
         eventSource.setList(emptyList);
         SpathStack<StartElement> stack = new SpathStack<StartElement>(matcher);
 
-        SpathEngine engine = new SpathEngineImpl<>(stack, eventSource);
+        SpathEngine engine = new SpathEngineImpl<StartElement>(stack, eventSource);
         SpathName gwml = engine.add(new SpathNameStart("GWML"));
         SpathName header = engine.add(new SpathNameElement(gwml, "header"));
         SpathName address = engine.add(new SpathNameElement(header, "address"));

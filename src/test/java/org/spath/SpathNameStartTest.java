@@ -9,7 +9,7 @@ import org.spath.test.SpathEventTestSource;
 
 public class SpathNameStartTest extends TestCase {
     SpathEventEvaluator evaluator = new SpathEventEvaluator();
-    SpathStack<SpathEvent> stack = new SpathStack<>(evaluator);
+    SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
     
     @Test
     public void testSimpleElement() {
@@ -164,7 +164,7 @@ public class SpathNameStartTest extends TestCase {
         SpathEventEvaluator evaluator = new SpathEventEvaluator();
         SpathEventTestSource eventSource = new SpathEventTestSource(events);
         SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
-        SpathEngineImpl engine = new SpathEngineImpl<>(stack, eventSource);
+        SpathEngineImpl engine = new SpathEngineImpl<SpathEvent>(stack, eventSource);
         SpathName data = engine.add(new SpathNameStart("data"));
         SpathName header = engine.add(new SpathNameElement(data, "header"));
         SpathName address = engine.add(new SpathNameElement(header, "address"));
@@ -203,7 +203,7 @@ public class SpathNameStartTest extends TestCase {
         SpathEventEvaluator evaluator = new SpathEventEvaluator();
         SpathEventTestSource eventSource = new SpathEventTestSource(events);
         SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
-        SpathEngineImpl engine = new SpathEngineImpl<>(stack, eventSource);
+        SpathEngineImpl engine = new SpathEngineImpl<SpathEvent>(stack, eventSource);
 
         SpathName data = engine.add(new SpathNameStart("data"));
         SpathName address = engine.add(new SpathNameElement(data, "address"));
@@ -251,7 +251,7 @@ public class SpathNameStartTest extends TestCase {
         SpathEventEvaluator evaluator = new SpathEventEvaluator();
         SpathEventTestSource eventSource = new SpathEventTestSource(events);
         SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
-        SpathEngineImpl engine = new SpathEngineImpl<>(stack, eventSource);
+        SpathEngineImpl engine = new SpathEngineImpl<SpathEvent>(stack, eventSource);
         
         SpathName address = engine.add(new SpathNameRelative("address"));
         engine.add(new SpathNameElement(address, "street"));

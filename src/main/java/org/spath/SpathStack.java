@@ -3,7 +3,7 @@ package org.spath;
 import java.util.Stack;
 
 public class SpathStack<T> {
-    Stack<T> stack = new Stack<>();
+    Stack<T> stack = new Stack<T>();
     SpathEvaluator<T> matcher;
 
     public SpathStack(SpathEvaluator<T> matcher) {

@@ -12,7 +12,7 @@ public class SpathXmlEventReaderFactory {
     public SpathEngine createEngine(XMLEventReader reader) {
         SpathXmlEventReader bridge = new SpathXmlEventReader(reader);
         SpathXmlEventEvaluator evaluator = new SpathXmlEventEvaluator();
-        SpathStack<StartElement> stack = new SpathStack<>(evaluator);
+        SpathStack<StartElement> stack = new SpathStack<StartElement>(evaluator);
         return new SpathEngineImpl<StartElement>(stack, bridge);
     }
 }

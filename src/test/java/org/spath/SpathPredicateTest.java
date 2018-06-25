@@ -6,42 +6,145 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.spath.event.SpathEvent;
+import org.spath.event.SpathEventBuilder;
 import org.spath.event.SpathEventEvaluator;
 
 import static org.spath.test.SpathEventFromString.toEvent;
 
 public class SpathPredicateTest extends TestCase {
+    SpathNameBuilder builder = new SpathNameBuilder();
     SpathEventEvaluator evaluator = new SpathEventEvaluator();
-    SpathStack<SpathEvent> stack = new SpathStack<>(evaluator);
+    SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
     
     @Test
-    public void testAttributeEquals() {
-        SpathNameStart element = new SpathNameStart("amount");
-        SpathPredicate attr = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
-        element.add(attr);
-        assertEquals("/amount[@type='decimal']", element.toString());
+    public void testStringEquals() {
+        SpathName element = builder.withType(SpathType.ROOT)
+                .withName("country")
+                .withPredicate("name", SpathOperator.EQ, "Mexico")
+                .build();
+        String elementString = "Match" + element.toString();
+        assertEquals("/country[@name='Mexico']", element.toString());
 
-        assertFalse("Should not match " + element, stack.match(element));
-        stack.push(toEvent("amount ( type = 'decimal' ) "));
-        assertTrue("Should match " + attr, stack.match(element));
+        assertFalse(elementString, stack.match(element));
+        stack.push(toEvent("country ( name = 'Australia' ) "));
         stack.pop();
-        assertFalse("Should not match " + element, stack.match(element));
+        stack.push(toEvent("country ( name = 'Mexico' ) "));
+        assertTrue(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Scotland' ) "));
+        assertFalse(elementString, stack.match(element));
+        stack.pop();
+        assertFalse(elementString, stack.match(element));
     }
 
     @Test
-    public void testMultiAttributeEquals() {
-        SpathNameStart element = new SpathNameStart("amount");
-        SpathPredicate attr = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
-        element.add(attr);
-        assertEquals("/amount[@type='decimal']", element.toString());
+    public void testStringNotEquals() {
+        SpathName element = builder.withType(SpathType.ROOT)
+                .withName("country")
+                .withPredicate("name", SpathOperator.NE, "Mexico")
+                .build();
+        String elementString = element.toString();
+        assertEquals("/country[@name!='Mexico']", element.toString());
 
-        assertFalse("Should not match " + element, stack.match(element));
-        SpathEvent event = toEvent("amount(currency='USD',type='decimal')");
-        stack.push(event);
-        //stack.push("amount[@currency='USD'][@type='decimal']");
-        assertTrue("Should match " + attr, stack.match(element));
+        assertFalse(elementString, stack.match(element));
+        stack.push(toEvent("country ( name = 'Australia' ) "));
+        assertTrue(elementString, stack.match(element));
         stack.pop();
-        assertFalse("Should not match " + element, stack.match(element));
+        stack.push(toEvent("country ( name = 'Mexico' ) "));
+        assertFalse(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Scotland' ) "));
+        assertTrue(elementString, stack.match(element));
+        stack.pop();
+        assertFalse(elementString, stack.match(element));
+    }
+
+    @Test
+    public void testStringLessThan() {
+        SpathName element = builder.withType(SpathType.ROOT)
+                .withName("country")
+                .withPredicate("name", SpathOperator.LT, "Mexico")
+                .build();
+        String elementString = element.toString();
+        assertEquals("/country[@name<'Mexico']", elementString);
+
+        assertFalse(elementString, stack.match(element));
+        stack.push(toEvent("country ( name = 'Australia' ) "));
+        assertTrue(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Mexico' ) "));
+        assertFalse(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Scotland' ) "));
+        assertFalse(elementString, stack.match(element));
+        stack.pop();
+        assertFalse(elementString, stack.match(element));
+    }
+
+    @Test
+    public void testStringLessEqual() {
+        SpathName element = builder.withType(SpathType.ROOT)
+                .withName("country")
+                .withPredicate("name", SpathOperator.LE, "Mexico")
+                .build();
+        String elementString = element.toString();
+        assertEquals("/country[@name<='Mexico']", elementString);
+
+        assertFalse(elementString, stack.match(element));
+        stack.push(toEvent("country ( name = 'Australia' ) "));
+        assertTrue(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Mexico' ) "));
+        assertTrue(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Scotland' ) "));
+        assertFalse(elementString, stack.match(element));
+        stack.pop();
+        assertFalse(elementString, stack.match(element));
+    }
+
+    @Test
+    public void testStringGreaterThan() {
+        SpathName element = builder.withType(SpathType.ROOT)
+                .withName("country")
+                .withPredicate("name", SpathOperator.GT, "Mexico")
+                .build();
+        String elementString = "Match " + element.toString();
+        assertEquals("/country[@name>'Mexico']", element.toString());
+
+        assertFalse(elementString, stack.match(element));
+        stack.push(toEvent("country ( name = 'Australia' ) "));
+        assertFalse(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Mexico' ) "));
+        assertFalse(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Scotland' ) "));
+        assertTrue(elementString, stack.match(element));
+        stack.pop();
+        assertFalse(elementString, stack.match(element));
+    }
+
+    @Test
+    public void testStringGreaterEqual() {
+        SpathName element = builder.withType(SpathType.ROOT)
+                .withName("country")
+                .withPredicate("name", SpathOperator.GE, "Mexico")
+                .build();
+        String elementString = "Match " + element.toString();
+        assertEquals("/country[@name>='Mexico']", element.toString());
+
+        assertFalse(elementString, stack.match(element));
+        stack.push(toEvent("country ( name = 'Australia' ) "));
+        assertFalse(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Mexico' ) "));
+        assertTrue(elementString, stack.match(element));
+        stack.pop();
+        stack.push(toEvent("country ( name = 'Scotland' ) "));
+        assertTrue(elementString, stack.match(element));
+        stack.pop();
+        assertFalse(elementString, stack.match(element));
     }
 
     @Test
@@ -49,14 +152,18 @@ public class SpathPredicateTest extends TestCase {
         SpathPredicate attr1 = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
         SpathPredicate attr2 = new SpathPredicateString("currency", SpathOperator.EQ, "USD");
         SpathMatch and1 = new SpathPredicateAnd(attr1, attr2);
-        SpathNameStart element = new SpathNameStart("amount", and1);
+        SpathName element = builder.withType(SpathType.ROOT)
+                .withName("amount")
+                .withPredicate(and1)
+                .build();
+        String elementString = "Match " + element.toString();
         assertEquals("/amount[@type='decimal' and @currency='USD']", element.toString());
 
-        assertFalse("Should not match " + element, stack.match(element));
+        assertFalse(elementString, stack.match(element));
         stack.push(toEvent("amount(currency='USD', type='decimal')"));
-        assertTrue("Should match amount[@currency='USD' and @type='decimal']", stack.match(element));
+        assertTrue(elementString, stack.match(element));
         stack.pop();
-        assertFalse("Should not match " + element, stack.match(element));
+        assertFalse(elementString, stack.match(element));
     }
 
     @Test

@@ -5,6 +5,10 @@
     <artifactId>spath</artifactId>
     <version>1</version>
   
+    <properties>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+    </properties>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
@@ -13,6 +17,12 @@
             <version>4.8.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.stream</groupId>
+            <artifactId>sjsxp</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
         <!-- dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>

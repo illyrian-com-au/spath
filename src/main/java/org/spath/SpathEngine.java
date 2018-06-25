@@ -2,8 +2,6 @@ package org.spath;
 
 public interface SpathEngine {
 
-   // boolean hasNext();
-
     boolean matchNext(SpathName base) throws SpathException;
 
     boolean matchNext() throws SpathException;

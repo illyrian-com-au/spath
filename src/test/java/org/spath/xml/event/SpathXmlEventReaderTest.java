@@ -9,11 +9,13 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.spath.SpathEngine;
 import org.spath.SpathName;
+import org.spath.SpathNameBuilder;
 import org.spath.SpathNameElement;
 import org.spath.SpathNameRelative;
 import org.spath.SpathNameStart;
 import org.spath.SpathOperator;
 import org.spath.SpathPredicateString;
+import org.spath.SpathType;
 import org.spath.test.StringReadWriter;
 
 import com.sun.xml.internal.stream.events.CharacterEvent;
@@ -122,10 +124,11 @@ public class SpathXmlEventReaderTest extends TestCase {
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
         SpathEngine engine = factory.createEngine(reader);
-        SpathName dataPath = engine.add(new SpathNameStart("data"));
-        SpathName namePath = engine.add(new SpathNameRelative("name"));
-        SpathName addressPath = engine.add(new SpathNameRelative("address"));
-        SpathName pricePath = engine.add(new SpathNameRelative("price"));
+        SpathNameBuilder builder = new SpathNameBuilder();
+        SpathName dataPath = engine.add(builder.withType(SpathType.ROOT).withName("data").build());
+        SpathName namePath = engine.add(builder.withType(SpathType.RELATIVE).withName("name").build());
+        SpathName addressPath = engine.add(builder.withType(SpathType.RELATIVE).withName("address").build());
+        SpathName pricePath = engine.add(builder.withType(SpathType.RELATIVE).withName("price").build());
         
         String name = null;
         String address = null;

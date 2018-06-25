@@ -1,10 +1,10 @@
-package org.spath.xml.event;
+package org.spath.xml.stream;
 
 import java.io.StringReader;
 
-import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import junit.framework.TestCase;
 
@@ -16,16 +16,16 @@ import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventEvaluator;
 import org.spath.parser.SpathParser;
 
-public class SpathXmlEventPredicateTest extends TestCase {
+public class SpathXmlStreamPredicateTest extends TestCase {
     SpathParser parser = new SpathParser();
     XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
-    SpathXmlEventReaderFactory factory = new SpathXmlEventReaderFactory();
+    SpathXmlStreamReaderFactory factory = new SpathXmlStreamReaderFactory();
     SpathEventEvaluator evaluator = new SpathEventEvaluator();
-    SpathStack<SpathEvent> stack = new SpathStack<>(evaluator);
+    SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
     
     private SpathEngine createSpathEngine(String xml) throws XMLStreamException {
         StringReader input = new StringReader(xml);
-        XMLEventReader reader = xmlFactory.createXMLEventReader(input);
+        XMLStreamReader reader = xmlFactory.createXMLStreamReader(input);
         SpathEngine engine = factory.createEngine(reader);
         return engine;
     }

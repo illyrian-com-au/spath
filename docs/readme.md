@@ -11,13 +11,17 @@ functionality available to Xpath. The advantage of Spath over Xpath is that it c
 ## Spath expression syntax
 
 Spath uses the abbreviated expression syntax from xpath.
-Node selectors such as "decendant" are not supported.
+Node selectors such as "decendent" are not supported.
 
 <table>
 <tr><th> Expression </th><th> Description </th></tr>
-<tr><td> nodename </td><td> Selects all elements with the name "nodename" </td></tr>
-<tr><td>   /name       </td><td> Selects from the root node </td></tr>
-<tr><td>   //name      </td><td> Selects nodes in the document from the current node that match the selection no matter where they are </td></tr>
+<tr><td>   /person     </td><td> Selects from the root node called person</td></tr>
+<tr><td>   //name      </td><td> Selects any node called name in the document </td></tr>
+<tr><td>   name        </td><td> Selects all node called "name"; same as //name </td></tr>
+<tr><td>   /person/name </td><td> Selects the node called "name" beneath the root node called person </td></tr>
+<tr><td>   //person/name </td><td> Selects the node called "name" beneath any node called person </td></tr>
+<tr><td>   /person//name </td><td> Selects any node called "name" beneath the root node called person </td></tr>
+<tr><td>   //person//name </td><td> Selects any node called "name" beneath any node called person </td></tr>
 </table>
 
 Note . and .. are not supported.
@@ -27,10 +31,10 @@ Note . and .. are not supported.
 Spath predicates have the general form 
   [ @ attribute operator value ]
 
-* value can be a quoted string or a decimal number
-* strings are surrounded by single quotes; numbers are not
-* operators "=" and "!=" may be applied to strings
-* operators "=" "!=" "<" "<=" ">" and ">=" may be applied to numbers
+* value can be a quoted string, a boolean or a decimal number
+* strings are surrounded by single quotes; booleans and numbers are not
+* operators "=" and "!=" may be applied to booleans
+* operators "=" "!=" "<" "<=" ">" and ">=" may be applied to strings and numbers
 * operator and value may be omitted.
 
 <table>
