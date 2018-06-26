@@ -3,10 +3,10 @@ package org.spath.event;
 import java.math.BigDecimal;
 
 import org.spath.SpathEvaluator;
-import org.spath.SpathNameElement;
-import org.spath.SpathPredicateBoolean;
-import org.spath.SpathPredicateNumber;
-import org.spath.SpathPredicateString;
+import org.spath.query.SpathQueryElement;
+import org.spath.query.SpathPredicateBoolean;
+import org.spath.query.SpathPredicateNumber;
+import org.spath.query.SpathPredicateString;
 
 public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
     
@@ -14,7 +14,7 @@ public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
     }
     
     @Override
-    public boolean match(SpathNameElement target, SpathEvent event) {
+    public boolean match(SpathQueryElement target, SpathEvent event) {
         String targetValue = target.getName();
         String eventValue = event.getName();
         return targetValue.equals(eventValue);

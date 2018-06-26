@@ -7,17 +7,17 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
 import org.spath.SpathEvaluator;
-import org.spath.SpathNameElement;
-import org.spath.SpathPredicateBoolean;
-import org.spath.SpathPredicateNumber;
-import org.spath.SpathPredicateString;
+import org.spath.query.SpathQueryElement;
+import org.spath.query.SpathPredicateBoolean;
+import org.spath.query.SpathPredicateNumber;
+import org.spath.query.SpathPredicateString;
 
 public class SpathXmlEventEvaluator implements SpathEvaluator<StartElement> {
     public SpathXmlEventEvaluator() {
     }
     
     @Override
-    public boolean match(SpathNameElement target, StartElement event) {
+    public boolean match(SpathQueryElement target, StartElement event) {
         String targetValue = target.getName();
         String eventValue = event.getName().toString();
         return targetValue.equals(eventValue);

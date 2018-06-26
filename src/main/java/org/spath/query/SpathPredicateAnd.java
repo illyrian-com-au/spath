@@ -1,6 +1,9 @@
-package org.spath;
+package org.spath.query;
 
-public class SpathPredicateAnd extends SpathBinary implements SpathMatch {
+import org.spath.SpathEvaluator;
+import org.spath.SpathMatch;
+
+public class SpathPredicateAnd extends SpathQueryBinary implements SpathMatch {
 
     public SpathPredicateAnd(SpathMatch left, SpathMatch right) {
         super(left, right);

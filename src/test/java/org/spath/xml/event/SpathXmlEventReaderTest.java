@@ -8,14 +8,14 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.spath.SpathEngine;
-import org.spath.SpathName;
-import org.spath.SpathNameBuilder;
-import org.spath.SpathNameElement;
-import org.spath.SpathNameRelative;
-import org.spath.SpathNameStart;
-import org.spath.SpathOperator;
-import org.spath.SpathPredicateString;
-import org.spath.SpathType;
+import org.spath.SpathQuery;
+import org.spath.query.SpathQueryBuilder;
+import org.spath.query.SpathQueryElement;
+import org.spath.query.SpathQueryRelative;
+import org.spath.query.SpathQueryStart;
+import org.spath.query.SpathPredicateOperator;
+import org.spath.query.SpathPredicateString;
+import org.spath.query.SpathQueryType;
 import org.spath.test.StringReadWriter;
 
 import com.sun.xml.internal.stream.events.CharacterEvent;
@@ -54,7 +54,7 @@ public class SpathXmlEventReaderTest extends TestCase {
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
         SpathEngine engine = factory.createEngine(reader);
-        SpathName data = new SpathNameStart("data");
+        SpathQuery data = new SpathQueryStart("data");
         engine.add(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -72,8 +72,8 @@ public class SpathXmlEventReaderTest extends TestCase {
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
         SpathEngine engine = factory.createEngine(reader);
-        SpathName data = engine.add(new SpathNameStart("data"));
-        SpathName bold = engine.add(new SpathNameElement(data, "b"));
+        SpathQuery data = engine.add(new SpathQueryStart("data"));
+        SpathQuery bold = engine.add(new SpathQueryElement(data, "b"));
 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -92,8 +92,8 @@ public class SpathXmlEventReaderTest extends TestCase {
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
         SpathEngine engine = factory.createEngine(reader);
-        SpathNameStart data = new SpathNameStart("data");
-        data.add(new SpathPredicateString("lang", SpathOperator.EQ, "En"));
+        SpathQueryStart data = new SpathQueryStart("data");
+        data.add(new SpathPredicateString("lang", SpathPredicateOperator.EQ, "En"));
         engine.add(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -124,11 +124,11 @@ public class SpathXmlEventReaderTest extends TestCase {
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
         SpathEngine engine = factory.createEngine(reader);
-        SpathNameBuilder builder = new SpathNameBuilder();
-        SpathName dataPath = engine.add(builder.withType(SpathType.ROOT).withName("data").build());
-        SpathName namePath = engine.add(builder.withType(SpathType.RELATIVE).withName("name").build());
-        SpathName addressPath = engine.add(builder.withType(SpathType.RELATIVE).withName("address").build());
-        SpathName pricePath = engine.add(builder.withType(SpathType.RELATIVE).withName("price").build());
+        SpathQueryBuilder builder = new SpathQueryBuilder();
+        SpathQuery dataPath = engine.add(builder.withType(SpathQueryType.ROOT).withName("data").build());
+        SpathQuery namePath = engine.add(builder.withType(SpathQueryType.RELATIVE).withName("name").build());
+        SpathQuery addressPath = engine.add(builder.withType(SpathQueryType.RELATIVE).withName("address").build());
+        SpathQuery pricePath = engine.add(builder.withType(SpathQueryType.RELATIVE).withName("price").build());
         
         String name = null;
         String address = null;

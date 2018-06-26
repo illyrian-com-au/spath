@@ -1,6 +1,6 @@
 package org.spath.parser;
 
-public enum TokenType {
+public enum SpathToken {
     END,
     DELIMITER,
     OPERATOR,

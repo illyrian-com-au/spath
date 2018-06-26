@@ -3,17 +3,24 @@ package org.spath;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.spath.engine.SpathEngineImpl;
+import org.spath.engine.SpathStackImpl;
 import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventEvaluator;
+import org.spath.query.SpathQueryException;
+import org.spath.query.SpathQueryElement;
+import org.spath.query.SpathQueryRelative;
+import org.spath.query.SpathQueryStart;
+import org.spath.query.SpathQueryType;
 import org.spath.test.SpathEventTestSource;
 
-public class SpathNameStartTest extends TestCase {
+public class SpathQueryTest extends TestCase {
     SpathEventEvaluator evaluator = new SpathEventEvaluator();
-    SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
+    SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(evaluator);
     
     @Test
     public void testSimpleElement() {
-        SpathName data = new SpathNameStart("data");
+        SpathQuery data = new SpathQueryStart("data");
         assertEquals("/data", data.toString());
 
         assertFalse("Should not match " + data, stack.match(data));
@@ -25,8 +32,8 @@ public class SpathNameStartTest extends TestCase {
 
     @Test
     public void testSimpleStack() {
-        SpathName data = new SpathNameStart("data");
-        SpathName trade = new SpathNameElement(data, "trade");
+        SpathQuery data = new SpathQueryStart("data");
+        SpathQuery trade = new SpathQueryElement(data, "trade");
         assertEquals("/data/trade", trade.toString());
         
         assertFalse("Should not match " + data, stack.match(data));
@@ -43,8 +50,8 @@ public class SpathNameStartTest extends TestCase {
 
     @Test
     public void testRelativeSimple() {
-        SpathName topdata = new SpathNameRelative("data");
-        SpathName topTrade = new SpathNameRelative("trade");
+        SpathQuery topdata = new SpathQueryRelative("data");
+        SpathQuery topTrade = new SpathQueryRelative("trade");
         assertEquals("//data", topdata.toString());
         assertEquals("//trade", topTrade.toString());
         
@@ -63,18 +70,18 @@ public class SpathNameStartTest extends TestCase {
 
     @Test
     public void testRelativeStack() {
-        SpathName topdata = new SpathNameRelative("data");
-        SpathName topHeader = new SpathNameElement(topdata, "header");
-        SpathName topTrade = new SpathNameElement(topdata, "trade");
+        SpathQuery topdata = new SpathQueryRelative("data");
+        SpathQuery topHeader = new SpathQueryElement(topdata, "header");
+        SpathQuery topTrade = new SpathQueryElement(topdata, "trade");
         assertEquals("//data", topdata.toString());
         assertEquals("//data", 1, topdata.getDepth());
-        assertEquals("//data", SpathType.RELATIVE, topdata.getType());
+        assertEquals("//data", SpathQueryType.RELATIVE, topdata.getType());
         assertEquals("//data/header", topHeader.toString());
         assertEquals("//data", 2, topHeader.getDepth());
-        assertEquals("//data", SpathType.ELEMENT, topHeader.getType());
+        assertEquals("//data", SpathQueryType.ELEMENT, topHeader.getType());
         assertEquals("//data/trade", topTrade.toString());
         assertEquals("//data", 2, topTrade.getDepth());
-        assertEquals("//data", SpathType.ELEMENT, topTrade.getType());
+        assertEquals("//data", SpathQueryType.ELEMENT, topTrade.getType());
 
         assertFalse("Should not match //data", stack.match(topdata));
         assertFalse("Should not match //data/trade", stack.match(topTrade));
@@ -101,9 +108,9 @@ public class SpathNameStartTest extends TestCase {
 
     @Test
     public void testMixedStack() {
-        SpathName data = new SpathNameStart("data");
-        SpathName trade = new SpathNameElement(data, "trade");
-        SpathName address = new SpathNameRelative(trade, "address");
+        SpathQuery data = new SpathQueryStart("data");
+        SpathQuery trade = new SpathQueryElement(data, "trade");
+        SpathQuery address = new SpathQueryRelative(trade, "address");
         assertEquals("/data", data.toString());
         assertEquals("/data/trade", trade.toString());
         assertEquals("/data/trade//address", address.toString());
@@ -127,8 +134,8 @@ public class SpathNameStartTest extends TestCase {
     
     @Test
     public void testPartialRelative() {
-        SpathName address = new SpathNameRelative("address");
-        SpathName street = new SpathNameElement(address, "street");
+        SpathQuery address = new SpathQueryRelative("address");
+        SpathQuery street = new SpathQueryElement(address, "street");
         assertEquals("//address", address.toString());
         assertEquals("//address/street", street.toString());
 
@@ -153,7 +160,7 @@ public class SpathNameStartTest extends TestCase {
     }
     
     @Test
-    public void testStreamStackEngineUsage() throws SpathException {
+    public void testStreamStackEngineUsage() throws SpathQueryException {
         SpathEvent [] events = new SpathEvent [] {
                 new SpathEvent("data"), 
                 new SpathEvent("header"), 
@@ -162,14 +169,14 @@ public class SpathNameStartTest extends TestCase {
                 new SpathEvent("details"), null,
                 null, null};
         SpathEventEvaluator evaluator = new SpathEventEvaluator();
-        SpathEventTestSource eventSource = new SpathEventTestSource(events);
-        SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
+        SpathEventTestSource<SpathEvent> eventSource = new SpathEventTestSource<SpathEvent>(events);
+        SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(evaluator);
         SpathEngineImpl engine = new SpathEngineImpl<SpathEvent>(stack, eventSource);
-        SpathName data = engine.add(new SpathNameStart("data"));
-        SpathName header = engine.add(new SpathNameElement(data, "header"));
-        SpathName address = engine.add(new SpathNameElement(header, "address"));
-        SpathName trade = engine.add(new SpathNameElement(data, "trade"));
-        SpathName details = engine.add(new SpathNameElement(trade, "details"));
+        SpathQuery data = engine.add(new SpathQueryStart("data"));
+        SpathQuery header = engine.add(new SpathQueryElement(data, "header"));
+        SpathQuery address = engine.add(new SpathQueryElement(header, "address"));
+        SpathQuery trade = engine.add(new SpathQueryElement(data, "trade"));
+        SpathQuery details = engine.add(new SpathQueryElement(trade, "details"));
         
         boolean hasAddress = false;
         boolean hasDetails = false;
@@ -192,7 +199,7 @@ public class SpathNameStartTest extends TestCase {
     }
 
     @Test
-    public void testAbsoluteAddress() throws SpathException {
+    public void testAbsoluteAddress() throws SpathQueryException {
         SpathEvent [] events = new SpathEvent [] {
                 new SpathEvent("data"), 
                 new SpathEvent("address"), 
@@ -201,15 +208,15 @@ public class SpathNameStartTest extends TestCase {
                 new SpathEvent("postcode").setText("3000"), null, 
                 null, null};
         SpathEventEvaluator evaluator = new SpathEventEvaluator();
-        SpathEventTestSource eventSource = new SpathEventTestSource(events);
-        SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
+        SpathEventTestSource<SpathEvent> eventSource = new SpathEventTestSource<SpathEvent>(events);
+        SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(evaluator);
         SpathEngineImpl engine = new SpathEngineImpl<SpathEvent>(stack, eventSource);
 
-        SpathName data = engine.add(new SpathNameStart("data"));
-        SpathName address = engine.add(new SpathNameElement(data, "address"));
-        engine.add(new SpathNameElement(address, "street"));
-        engine.add(new SpathNameElement(address, "suburb"));
-        engine.add(new SpathNameElement(address, "postcode"));
+        SpathQuery data = engine.add(new SpathQueryStart("data"));
+        SpathQuery address = engine.add(new SpathQueryElement(data, "address"));
+        engine.add(new SpathQueryElement(address, "street"));
+        engine.add(new SpathQueryElement(address, "suburb"));
+        engine.add(new SpathQueryElement(address, "postcode"));
 
         Address addr = null;
         while (engine.matchNext()) {
@@ -224,7 +231,7 @@ public class SpathNameStartTest extends TestCase {
         assertEquals("3000", addr.postcode);
     }
     
-    private Address absoluteAddress(SpathEngineImpl engine, SpathMatch address) throws SpathException {
+    private Address absoluteAddress(SpathEngineImpl engine, SpathMatch address) throws SpathQueryException {
 
         Address addr = new Address();
         while (engine.matchNext("/data/address")) {
@@ -240,7 +247,7 @@ public class SpathNameStartTest extends TestCase {
     }
 
     @Test
-    public void testRelativeAddress() throws SpathException {
+    public void testRelativeAddress() throws SpathQueryException {
         SpathEvent [] events = new SpathEvent [] {
                 new SpathEvent("data"), 
                 new SpathEvent("address"), 
@@ -249,14 +256,14 @@ public class SpathNameStartTest extends TestCase {
                 new SpathEvent("postcode").setText("3000"), null, 
                 null, null};
         SpathEventEvaluator evaluator = new SpathEventEvaluator();
-        SpathEventTestSource eventSource = new SpathEventTestSource(events);
-        SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
+        SpathEventTestSource<SpathEvent> eventSource = new SpathEventTestSource<SpathEvent>(events);
+        SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(evaluator);
         SpathEngineImpl engine = new SpathEngineImpl<SpathEvent>(stack, eventSource);
         
-        SpathName address = engine.add(new SpathNameRelative("address"));
-        engine.add(new SpathNameElement(address, "street"));
-        engine.add(new SpathNameElement(address, "suburb"));
-        engine.add(new SpathNameElement(address, "postcode"));
+        SpathQuery address = engine.add(new SpathQueryRelative("address"));
+        engine.add(new SpathQueryElement(address, "street"));
+        engine.add(new SpathQueryElement(address, "suburb"));
+        engine.add(new SpathQueryElement(address, "postcode"));
 
         Address addr = null;
         while (engine.matchNext()) {
@@ -271,7 +278,7 @@ public class SpathNameStartTest extends TestCase {
         assertEquals("3000", addr.postcode);
     }
     
-    private Address relativeAddress(SpathEngineImpl engine, SpathName address) throws SpathException {
+    private Address relativeAddress(SpathEngineImpl engine, SpathQuery address) throws SpathQueryException {
         Address addr = new Address();
         while (engine.matchNext(address)) {
             if (engine.match("//address/street")) {
@@ -288,17 +295,17 @@ public class SpathNameStartTest extends TestCase {
     @Test
     public void testInvalidCharacters() {
         try {
-            new SpathNameStart("/data");
+            new SpathQueryStart("/data");
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
-            assertEquals("Invalid character : '/' in SpathName: /data", ex.getMessage());
+            assertEquals("Invalid character : '/' in SpathQuery: /data", ex.getMessage());
         }
 
         try {
-            new SpathNameStart(" data");
+            new SpathQueryStart(" data");
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
-            assertEquals("Invalid character : ' ' in SpathName:  data", ex.getMessage());
+            assertEquals("Invalid character : ' ' in SpathQuery:  data", ex.getMessage());
         }
     }
 }

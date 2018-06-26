@@ -1,14 +1,17 @@
-package org.spath;
+package org.spath.query;
+
+import org.spath.SpathEvaluator;
+import org.spath.SpathPredicate;
 
 public class SpathPredicateBoolean implements SpathPredicate {
     private static final String TRUE = "true";
     private static final String FALSE = "false";
 
     private final String name;
-    private final SpathOperator operator;
+    private final SpathPredicateOperator operator;
     private final Boolean value;
     
-    public SpathPredicateBoolean(String name, SpathOperator operator, Boolean value) {
+    public SpathPredicateBoolean(String name, SpathPredicateOperator operator, Boolean value) {
         this.name = name;
         this.operator = operator;
         this.value = value;
@@ -18,7 +21,7 @@ public class SpathPredicateBoolean implements SpathPredicate {
         return name;
     }
 
-    public SpathOperator getOperator() {
+    public SpathPredicateOperator getOperator() {
         return operator;
     }
 
@@ -53,9 +56,9 @@ public class SpathPredicateBoolean implements SpathPredicate {
         if (getName().equals(name) && value != null) {
             if (getOperator() == null) {
                 return true;
-            } else if (getOperator() == SpathOperator.EQ) {
+            } else if (getOperator() == SpathPredicateOperator.EQ) {
                 return (0 == getValue().compareTo(value));
-            } else if (getOperator() == SpathOperator.NE){
+            } else if (getOperator() == SpathPredicateOperator.NE){
                 return (0 != getValue().compareTo(value));
             }
         }

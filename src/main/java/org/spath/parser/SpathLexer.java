@@ -38,7 +38,7 @@ import java.util.Properties;
 public class SpathLexer
 {
    /** The last read token. Modified by nextToken() */
-    private TokenType tokenType = null;
+    private SpathToken tokenType = null;
 
     private SpathInputString input = null;
     
@@ -145,7 +145,7 @@ public class SpathLexer
         return whitespace;
     }
 
-    public TokenType getTokenType()
+    public SpathToken getTokenType()
     {
         return tokenType;
     }
@@ -179,7 +179,7 @@ public class SpathLexer
 
     public Integer getTokenInteger()
     {
-        if (tokenType == TokenType.NUMBER) {
+        if (tokenType == SpathToken.NUMBER) {
             return Integer.valueOf(input.getTokenString());
         } else {
             throw new NumberFormatException("Token is not an Integer");
@@ -202,7 +202,7 @@ public class SpathLexer
      */
     public Object getTokenOperator()
     {
-        if (tokenType == TokenType.OPERATOR) {
+        if (tokenType == SpathToken.OPERATOR) {
             return getOperators().get(input.getTokenString());
         } else {
             throw new IllegalStateException("Token is not an Operator");
@@ -210,10 +210,10 @@ public class SpathLexer
     }
 
     public boolean hasNext() {
-        return getTokenType() != TokenType.END;
+        return getTokenType() != SpathToken.END;
     }
     
-    public TokenType nextToken()
+    public SpathToken nextToken()
     {
         getInput();
         do {
@@ -222,20 +222,20 @@ public class SpathLexer
             // Read the next token
             tokenType = spanNextToken();
 
-        } while (tokenType == TokenType.COMMENT);
+        } while (tokenType == SpathToken.COMMENT);
         return tokenType;
     }
 
     /**
      * Read the next token.
      */
-    private TokenType spanNextToken()
+    private SpathToken spanNextToken()
     {
-        TokenType token;
+        SpathToken token;
         // Now examine the start character.
         char ch = input.startChar();
         if (ch == SpathInputString.NULL) {
-            token = TokenType.END;
+            token = SpathToken.END;
         } else if (isIdentifierStartChar(ch)) {
             token = spanIdentifier();
         } else if (isQuote(ch)) {
@@ -259,11 +259,11 @@ public class SpathLexer
      * and <code>getTokenValue()</code>.
      * @returns Lexer.DELIMITER
      */
-    private TokenType spanDelimiter()
+    private SpathToken spanDelimiter()
     {
         input.startChar(); // Mark start of token
         tokenDelimiter = input.nextChar();
-        return TokenType.DELIMITER;
+        return SpathToken.DELIMITER;
     }
 
     /**
@@ -274,7 +274,7 @@ public class SpathLexer
      * The entire token including quotes is available from <code>getTokenValue()</code>.
      * @returns Lexer.CHARACTER
      */
-    private TokenType spanStringLiteral()
+    private SpathToken spanStringLiteral()
     {
         StringBuffer buf = new StringBuffer();
         char ch = input.startChar(); // Mark start of token
@@ -290,7 +290,7 @@ public class SpathLexer
             if (ch == tokenDelimiter) {
                 ch = input.nextChar();
                 tokenString = buf.toString();
-                return TokenType.STRING;
+                return SpathToken.STRING;
             }
             return error("Missing quote at end of String: " + tokenDelimiter);
         }
@@ -320,7 +320,7 @@ public class SpathLexer
      *
      * @return the code for the identifier or reserved word.
      */
-    private TokenType spanIdentifier()
+    private SpathToken spanIdentifier()
     {
         char ch = input.startChar();
         {
@@ -334,12 +334,12 @@ public class SpathLexer
             String identifier = convertIdentifier(getTokenValue());
             if (getReservedWords().getProperty(identifier) != null) {
                 if (getOperators().getProperty(identifier) != null) {
-                    return TokenType.OPERATOR;
+                    return SpathToken.OPERATOR;
                 }
-                return TokenType.RESERVED;
+                return SpathToken.RESERVED;
             }
         }
-        return TokenType.IDENTIFIER;
+        return SpathToken.IDENTIFIER;
     }
     
     private String convertIdentifier(String identifier) {
@@ -356,20 +356,20 @@ public class SpathLexer
      *
      * @return the code for the operator or delimiter.
      */
-    private TokenType spanNumber()
+    private SpathToken spanNumber()
     {
         char ch = input.startChar();
         while (isDigitChar(ch)) {
             ch = input.nextChar();
         }
         if (ch != '.') {
-            return TokenType.NUMBER;
+            return SpathToken.NUMBER;
         }
         ch = input.nextChar();
         while (isDigitChar(ch)) {
             ch = input.nextChar();
         }
-        return TokenType.DECIMAL;
+        return SpathToken.DECIMAL;
     }
 
     /**
@@ -379,19 +379,19 @@ public class SpathLexer
      *
      * @return the code for the operator or delimiter.
      */
-    private TokenType spanOperator()
+    private SpathToken spanOperator()
     {
         char ch = input.startChar();
         while (isOperator(ch)) {
             ch = input.nextChar();
         }
-        return TokenType.OPERATOR;
+        return SpathToken.OPERATOR;
     }
 
-    private TokenType error(String message)
+    private SpathToken error(String message)
     {
         errorMessage = message;
-        return TokenType.ERROR;
+        return SpathToken.ERROR;
     }
 
     // #### character tests ####

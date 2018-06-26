@@ -1,40 +1,44 @@
-package org.spath;
+package org.spath.query;
+
+import org.spath.SpathEvaluator;
+import org.spath.SpathMatch;
+import org.spath.SpathQuery;
 
 
-public class SpathNameElement implements SpathName {
+public class SpathQueryElement implements SpathQuery {
     public static final String STAR = "*";
 
-    protected final SpathName parent;
+    protected final SpathQuery parent;
     protected final String name;
     protected final int depth;
-    protected final SpathType type;
+    protected final SpathQueryType type;
     private SpathMatch predicate = null;
 
-    public SpathNameElement(SpathName parent) {
+    public SpathQueryElement(SpathQuery parent) {
         this(parent, STAR, null);
     }
     
-    SpathNameElement(SpathName parent, SpathMatch predicate) {
+    SpathQueryElement(SpathQuery parent, SpathMatch predicate) {
         this(parent, STAR, predicate);
     }
     
-    public SpathNameElement(SpathName parent, String name) {
+    public SpathQueryElement(SpathQuery parent, String name) {
         this(parent, name, null);
     }
     
-    SpathNameElement(SpathName parent, String name, SpathMatch predicate) {
+    SpathQueryElement(SpathQuery parent, String name, SpathMatch predicate) {
         validate(parent);
         validate(name);
         this.parent = parent;
         this.name = name;
         this.depth = parent.getDepth() + 1;
-        this.type = (parent.getType() == SpathType.ROOT) ? SpathType.ROOT : SpathType.ELEMENT;
+        this.type = (parent.getType() == SpathQueryType.ROOT) ? SpathQueryType.ROOT : SpathQueryType.ELEMENT;
         if (predicate != null) {
             add(predicate);
         }
     }
     
-    SpathNameElement(String name, SpathType type, SpathMatch predicate) {
+    SpathQueryElement(String name, SpathQueryType type, SpathMatch predicate) {
         validate(name);
         validate(type);
         this.parent = null;
@@ -46,7 +50,7 @@ public class SpathNameElement implements SpathName {
         }
     }
     
-    SpathNameElement(SpathName parent, String name, SpathType type, SpathMatch predicate) {
+    SpathQueryElement(SpathQuery parent, String name, SpathQueryType type, SpathMatch predicate) {
         validate(parent);
         validate(name);
         validate(parent, type);
@@ -59,20 +63,20 @@ public class SpathNameElement implements SpathName {
         }
     }
     
-    void validate(SpathName parent) {
+    void validate(SpathQuery parent) {
         if (parent == null) {
             throw new IllegalArgumentException("parent cannot be null.");
         }
     }
     
-    void validate(SpathName parent, SpathType type) {
-        if (type == SpathType.ROOT && parent != null && parent.getType() != SpathType.ROOT) {
+    void validate(SpathQuery parent, SpathQueryType type) {
+        if (type == SpathQueryType.ROOT && parent != null && parent.getType() != SpathQueryType.ROOT) {
             throw new IllegalArgumentException("Root can only be used at the start of a spath.");
         }
     }
     
-    void validate(SpathType type) {
-        if (type == SpathType.ELEMENT) {
+    void validate(SpathQueryType type) {
+        if (type == SpathQueryType.ELEMENT) {
             throw new IllegalArgumentException("Type at start of path must be ROOT or RELATIVE.");
         }
     }
@@ -83,7 +87,7 @@ public class SpathNameElement implements SpathName {
             for (index=0; index<name.length(); index++) {
                 char ch = name.charAt(index);
                 if (!Character.isLetterOrDigit(ch) || ch == ':') {
-                    throw new IllegalArgumentException("Invalid character : '" + name.charAt(index) + "' in SpathName: " + name);
+                    throw new IllegalArgumentException("Invalid character : '" + name.charAt(index) + "' in SpathQuery: " + name);
                 }
             }
         }
@@ -115,7 +119,7 @@ public class SpathNameElement implements SpathName {
         return true;
     }
 
-    public SpathName getParent() {
+    public SpathQuery getParent() {
         return parent;
     }
 
@@ -127,7 +131,7 @@ public class SpathNameElement implements SpathName {
         return depth;
     }
     
-    public SpathType getType() {
+    public SpathQueryType getType() {
         return type;
     }
     
@@ -152,7 +156,7 @@ public class SpathNameElement implements SpathName {
         if (getParent() != null) {
             build.append(getParent().toString());
         }
-        if (getType() == SpathType.RELATIVE) {
+        if (getType() == SpathQueryType.RELATIVE) {
             build.append('/');
         }
         build.append('/');

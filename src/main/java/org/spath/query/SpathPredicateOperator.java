@@ -1,6 +1,6 @@
-package org.spath;
+package org.spath.query;
 
-public enum SpathOperator {
+public enum SpathPredicateOperator {
     EQ("="),
     NE("!="),
     LT("<"),
@@ -10,7 +10,7 @@ public enum SpathOperator {
     
     private final String value;
     
-    private SpathOperator(String value) {
+    private SpathPredicateOperator(String value) {
         this.value = value;
     }
     

@@ -5,13 +5,13 @@ import java.math.BigDecimal;
 import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.spath.SpathNameStart;
-import org.spath.SpathOperator;
-import org.spath.SpathPredicateBoolean;
-import org.spath.SpathPredicateNumber;
-import org.spath.SpathPredicateString;
 import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventEvaluator;
+import org.spath.query.SpathQueryStart;
+import org.spath.query.SpathPredicateOperator;
+import org.spath.query.SpathPredicateBoolean;
+import org.spath.query.SpathPredicateNumber;
+import org.spath.query.SpathPredicateString;
 
 public class SpathEventTest extends TestCase {
     SpathEventBuilder builder = new SpathEventBuilder();
@@ -48,23 +48,23 @@ public class SpathEventTest extends TestCase {
         assertEquals("data(date='2018-03-21')", event2.toString());
 
         SpathEventEvaluator eval = new SpathEventEvaluator();
-        SpathNameStart spath = new SpathNameStart("data");
+        SpathQueryStart spath = new SpathQueryStart("data");
         assertTrue("match(\"data\")", eval.match(spath, event1));
         assertTrue("match(\"data\")", eval.match(spath, event2));
         
-        SpathPredicateString currency = new SpathPredicateString("currency", SpathOperator.EQ, "AUD");
+        SpathPredicateString currency = new SpathPredicateString("currency", SpathPredicateOperator.EQ, "AUD");
         assertTrue("match: data(currency='AUD')", eval.match(currency, event1));
         assertFalse("not match: data(currency='AUD')", eval.match(currency, event2));
         
-        SpathPredicateNumber amount = new SpathPredicateNumber("amount", SpathOperator.GT, new BigDecimal("10.00"));
+        SpathPredicateNumber amount = new SpathPredicateNumber("amount", SpathPredicateOperator.GT, new BigDecimal("10.00"));
         assertTrue("match: data(amount>10.00)", eval.match(amount, event1));
         assertFalse("not match: data(amount>10.00))", eval.match(amount, event2));
         
-        SpathPredicateBoolean paid = new SpathPredicateBoolean("paid", SpathOperator.EQ, Boolean.TRUE);
+        SpathPredicateBoolean paid = new SpathPredicateBoolean("paid", SpathPredicateOperator.EQ, Boolean.TRUE);
         assertTrue("match: data(paid=true)", eval.match(paid, event1));
         assertFalse("not match: data(paid=true)", eval.match(paid, event2));
         
-        SpathPredicateString date = new SpathPredicateString("date", SpathOperator.EQ, "2018-03-21");
+        SpathPredicateString date = new SpathPredicateString("date", SpathPredicateOperator.EQ, "2018-03-21");
         assertFalse("not match: data(date='2018-03-21')", eval.match(date, event1));
         assertTrue("match: data(date='2018-03-21')", eval.match(date, event2));
     }

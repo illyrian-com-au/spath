@@ -1,7 +1,5 @@
 package org.spath.event;
 
-import java.math.BigDecimal;
-
 public class SpathProperty {
     private final String name;
     private final Object value;

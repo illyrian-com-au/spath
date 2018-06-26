@@ -4,12 +4,13 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.StartElement;
 
 import org.spath.SpathEventSource;
-import org.spath.SpathException;
 import org.spath.SpathStack;
 import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventBuilder;
+import org.spath.query.SpathQueryException;
 
 public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
     private final XMLStreamReader reader;
@@ -21,7 +22,7 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
     }
     
     @Override
-    public boolean nextEvent(SpathStack<SpathEvent> engine) throws SpathException {
+    public boolean nextEvent(SpathStack<SpathEvent> engine) throws SpathQueryException {
         try {
             while (reader.hasNext()) {
                 int event = nextEvent();
@@ -43,12 +44,12 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
             }
             return false;
         } catch (Exception ex) {
-            throw new SpathException("Could not read nextEvent", ex);
+            throw new SpathQueryException("Could not read nextEvent", ex);
         }
     }
     
     @Override
-    public String getText(SpathStack<SpathEvent> engine) throws SpathException {
+    public String getText(SpathStack<SpathEvent> engine) throws SpathQueryException {
         try {
             if (text != null) {
                 return text;
@@ -60,7 +61,7 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
             }
             return "";
         } catch (XMLStreamException ex) {
-            throw new SpathException("Could not peek nextEvent", ex);
+            throw new SpathQueryException("Could not peek nextEvent", ex);
         }
     }
     

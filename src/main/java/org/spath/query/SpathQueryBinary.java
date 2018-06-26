@@ -1,10 +1,12 @@
-package org.spath;
+package org.spath.query;
 
-public class SpathBinary {
+import org.spath.SpathMatch;
+
+public class SpathQueryBinary {
     private final SpathMatch left;
     private final SpathMatch right;
 
-    public SpathBinary(SpathMatch left, SpathMatch right) {
+    public SpathQueryBinary(SpathMatch left, SpathMatch right) {
         this.left = left;
         this.right = right;
         validateArgs();

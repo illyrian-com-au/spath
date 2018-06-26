@@ -1,12 +1,12 @@
 package org.spath.parse;
 
 import org.spath.SpathMatch;
-import org.spath.SpathName;
-import org.spath.SpathNameElement;
-import org.spath.SpathNameRelative;
-import org.spath.SpathNameStart;
-import org.spath.SpathType;
+import org.spath.SpathQuery;
 import org.spath.parser.SpathParser;
+import org.spath.query.SpathQueryElement;
+import org.spath.query.SpathQueryRelative;
+import org.spath.query.SpathQueryStart;
+import org.spath.query.SpathQueryType;
 
 import junit.framework.TestCase;
 
@@ -40,61 +40,61 @@ public class SpathParserTest extends TestCase {
     }
 
     public void testParserSequenceSimple() {
-        SpathName details = parser.parse("data/details");
+        SpathQuery details = parser.parse("data/details");
         assertNotNull("Null result from parser", details);
         assertEquals("//data/details", details.toString());
-        assertSpathNameElement(details, "details", SpathType.ELEMENT, 2);
+        assertSpathNameElement(details, "details", SpathQueryType.ELEMENT, 2);
         assertSpathNameRelative(details.getParent(), "data", 1);
     }
 
     public void testParserSequenceRelative() {
-        SpathName result = parser.parse("//data/details");
+        SpathQuery result = parser.parse("//data/details");
         assertNotNull("Null result from parser", result);
         assertEquals("//data/details", result.toString());
-        assertSpathNameElement(result, "details", SpathType.ELEMENT, 2);
+        assertSpathNameElement(result, "details", SpathQueryType.ELEMENT, 2);
         assertSpathNameRelative(result.getParent(), "data", 1);
     }
 
     public void testParserSequenceAbsolute() {
-        SpathName result = parser.parse("/data/details");
+        SpathQuery result = parser.parse("/data/details");
         assertNotNull("Null result from parser", result);
         assertEquals("/data/details", result.toString());
-        assertSpathNameElement(result, "details", SpathType.ROOT,  2);
+        assertSpathNameElement(result, "details", SpathQueryType.ROOT,  2);
         assertSpathNameStart(result.getParent(), "data");
     }
 
     public void testParserSequenceMixed() {
-        SpathName result = parser.parse("/data//details/address");
+        SpathQuery result = parser.parse("/data//details/address");
         assertNotNull("Null result from parser", result);
         assertEquals("/data//details/address", result.toString());
-        assertSpathNameElement(result, "address", SpathType.ELEMENT, 3);
+        assertSpathNameElement(result, "address", SpathQueryType.ELEMENT, 3);
         result = result.getParent();
         assertSpathNameRelative(result, "details", 2);
         result = result.getParent();
         assertSpathNameStart(result, "data");
     }
     
-    private void assertSpathNameElement(SpathMatch target, String name, SpathType type, int depth) {
-        assertEquals(SpathNameElement.class, target.getClass());
-        SpathNameElement start = (SpathNameElement)target;
+    private void assertSpathNameElement(SpathMatch target, String name, SpathQueryType type, int depth) {
+        assertEquals(SpathQueryElement.class, target.getClass());
+        SpathQueryElement start = (SpathQueryElement)target;
         assertEquals("Name", name, start.getName());
         assertEquals("Type", type, start.getType());
         assertEquals("Depth", depth, start.getDepth());
     }
 
     private void assertSpathNameStart(SpathMatch target, String name) {
-        assertEquals(SpathNameStart.class, target.getClass());
-        SpathNameStart start = (SpathNameStart)target;
+        assertEquals(SpathQueryStart.class, target.getClass());
+        SpathQueryStart start = (SpathQueryStart)target;
         assertEquals("Name", name, start.getName());
-        assertEquals("Type", SpathType.ROOT, start.getType());
+        assertEquals("Type", SpathQueryType.ROOT, start.getType());
         assertEquals("Depth", 1, start.getDepth());
     }
 
     private void assertSpathNameRelative(SpathMatch target, String name, int depth) {
-        assertEquals(SpathNameRelative.class, target.getClass());
-        SpathNameRelative element = (SpathNameRelative)target;
+        assertEquals(SpathQueryRelative.class, target.getClass());
+        SpathQueryRelative element = (SpathQueryRelative)target;
         assertEquals("Name", name, element.getName());
-        assertEquals("Type", SpathType.RELATIVE, element.getType());
+        assertEquals("Type", SpathQueryType.RELATIVE, element.getType());
         assertEquals("Depth", depth, element.getDepth());
     }
 }

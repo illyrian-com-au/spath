@@ -10,8 +10,9 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.spath.SpathEngine;
-import org.spath.SpathName;
+import org.spath.SpathQuery;
 import org.spath.SpathStack;
+import org.spath.engine.SpathStackImpl;
 import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventEvaluator;
 import org.spath.parser.SpathParser;
@@ -21,7 +22,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
     XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
     SpathXmlStreamReaderFactory factory = new SpathXmlStreamReaderFactory();
     SpathEventEvaluator evaluator = new SpathEventEvaluator();
-    SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
+    SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(evaluator);
     
     private SpathEngine createSpathEngine(String xml) throws XMLStreamException {
         StringReader input = new StringReader(xml);
@@ -32,7 +33,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
     
     @Test
     public void testAttributeEquals() throws XMLStreamException {
-        SpathName amount = parser.parse("amount[@type='decimal']");
+        SpathQuery amount = parser.parse("amount[@type='decimal']");
         assertEquals("//amount[@type='decimal']", amount.toString());
 
         SpathEngine engine = createSpathEngine("<amount type='decimal'>10.25</amount>");
@@ -46,7 +47,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testAttributeEquals2() throws XMLStreamException {
-        SpathName amount = parser.parse("/amount[@type='decimal']");
+        SpathQuery amount = parser.parse("/amount[@type='decimal']");
         assertEquals("/amount[@type='decimal']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal'>10.25</amount>");
@@ -60,7 +61,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testAndAttributeEquals() throws XMLStreamException {
-        SpathName amount = parser.parse("/amount[@currency='USD' and @type='decimal']");
+        SpathQuery amount = parser.parse("/amount[@currency='USD' and @type='decimal']");
         assertEquals("/amount[@currency='USD' and @type='decimal']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
@@ -74,7 +75,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testMultiPredicateMissmatch() throws XMLStreamException {
-        SpathName amount = parser.parse("/amount[@currency='USD' and @type='decimal']");
+        SpathQuery amount = parser.parse("/amount[@currency='USD' and @type='decimal']");
         assertEquals("/amount[@currency='USD' and @type='decimal']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
@@ -88,7 +89,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testAttributeExists() throws XMLStreamException {
-        SpathName amount = parser.parse("/amount[@type]");
+        SpathQuery amount = parser.parse("/amount[@type]");
         assertEquals("/amount[@type]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
@@ -102,7 +103,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testMultiAttributeExists() throws XMLStreamException {
-        SpathName amount = parser.parse("/amount[@type and @currency]");
+        SpathQuery amount = parser.parse("/amount[@type and @currency]");
         assertEquals("/amount[@type and @currency]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
@@ -116,7 +117,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testSimpleMismatch() throws XMLStreamException {
-        SpathName amount = parser.parse("/amount[ @currency = 'AUD' ] ");
+        SpathQuery amount = parser.parse("/amount[ @currency = 'AUD' ] ");
         assertEquals("/amount[@currency='AUD']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
@@ -127,7 +128,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeEquals() throws XMLStreamException {
-        SpathName amount = parser.parse("/*[@currency='USD']");
+        SpathQuery amount = parser.parse("/*[@currency='USD']");
         assertEquals("/*[@currency='USD']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
@@ -141,7 +142,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeNotEquals() throws XMLStreamException {
-        SpathName amount = parser.parse("//*[@currency!='USD']");
+        SpathQuery amount = parser.parse("//*[@currency!='USD']");
         assertEquals("//*[@currency!='USD']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='AUD'>10.25</amount>");
@@ -155,9 +156,9 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testAttributeEqualsNumber() throws XMLStreamException {
-        SpathName item = parser.parse("item");
+        SpathQuery item = parser.parse("item");
         assertEquals("//item", item.toString());
-        SpathName amount = parser.parse("//item[@amount=10.25]");
+        SpathQuery amount = parser.parse("//item[@amount=10.25]");
         assertEquals("//item[@amount=10.25]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<item amount='10.25'>Lunch</item>");
@@ -172,9 +173,9 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeEqualsNumber() throws XMLStreamException {
-        SpathName item = parser.parse("*");
+        SpathQuery item = parser.parse("*");
         assertEquals("//*", item.toString());
-        SpathName amount = parser.parse("//*[@amount=10.25]");
+        SpathQuery amount = parser.parse("//*[@amount=10.25]");
         assertEquals("//*[@amount=10.25]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<item amount='10.25'>Lunch</item>");
@@ -189,9 +190,9 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeNotEqualsNumber() throws XMLStreamException {
-        SpathName item = parser.parse("*");
+        SpathQuery item = parser.parse("*");
         assertEquals("//*", item.toString());
-        SpathName amount = parser.parse("*[@amount!=10.25]");
+        SpathQuery amount = parser.parse("*[@amount!=10.25]");
         assertEquals("//*[@amount!=10.25]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<item amount='10.00'>Lunch</item>");
@@ -209,9 +210,9 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeLessThanNumber() throws XMLStreamException {
-        SpathName item = parser.parse("shoe");
+        SpathQuery item = parser.parse("shoe");
         assertEquals("//shoe", item.toString());
-        SpathName element = parser.parse("*[@price<30]");
+        SpathQuery element = parser.parse("*[@price<30]");
         assertEquals("//*[@price<30]", element.toString());
     
         SpathEngine engine = createSpathEngine(SHOES);
@@ -229,9 +230,9 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeGreaterThanNumber() throws XMLStreamException {
-        SpathName item = parser.parse("shoe");
+        SpathQuery item = parser.parse("shoe");
         assertEquals("//shoe", item.toString());
-        SpathName element = parser.parse("*[@price>30]");
+        SpathQuery element = parser.parse("*[@price>30]");
         assertEquals("//*[@price>30]", element.toString());
     
         SpathEngine engine = createSpathEngine(SHOES);
@@ -249,9 +250,9 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeLessEqualNumber() throws XMLStreamException {
-        SpathName item = parser.parse("shoe");
+        SpathQuery item = parser.parse("shoe");
         assertEquals("//shoe", item.toString());
-        SpathName element = parser.parse("*[@price<=30]");
+        SpathQuery element = parser.parse("*[@price<=30]");
         assertEquals("//*[@price<=30]", element.toString());
     
         SpathEngine engine = createSpathEngine(SHOES);
@@ -269,9 +270,9 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeGreaterEqualNumber() throws XMLStreamException {
-        SpathName item = parser.parse("shoe");
+        SpathQuery item = parser.parse("shoe");
         assertEquals("//shoe", item.toString());
-        SpathName element = parser.parse("*[@price>=30]");
+        SpathQuery element = parser.parse("*[@price>=30]");
         assertEquals("//*[@price>=30]", element.toString());
     
         SpathEngine engine = createSpathEngine(SHOES);
@@ -289,9 +290,9 @@ public class SpathXmlStreamPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeAndNumber() throws XMLStreamException {
-        SpathName item = parser.parse("shoe");
+        SpathQuery item = parser.parse("shoe");
         assertEquals("//shoe", item.toString());
-        SpathName element = parser.parse("*[@price>=30 and @price<40]");
+        SpathQuery element = parser.parse("*[@price>=30 and @price<40]");
         assertEquals("//*[@price>=30 and @price<40]", element.toString());
     
         String shoes = "<shoes><shoe price='20.00'/><shoe price='30.00'/><shoe price='39.99'/><shoe price='40.00'/></shoes>";
@@ -313,9 +314,9 @@ public class SpathXmlStreamPredicateTest extends TestCase {
     @Test
     public void testStarAttributeOrNumber() throws XMLStreamException {
 
-        SpathName item = parser.parse("shoe");
+        SpathQuery item = parser.parse("shoe");
         assertEquals("//shoe", item.toString());
-        SpathName element = parser.parse("*[@price<30 or @price>=40]");
+        SpathQuery element = parser.parse("*[@price<30 or @price>=40]");
         assertEquals("//*[@price<30 or @price>=40]", element.toString());
     
         String shoes = "<shoes><shoe price='20.00'/><shoe price='30.00'/><shoe price='30.01'/><shoe price='40.00'/></shoes>";

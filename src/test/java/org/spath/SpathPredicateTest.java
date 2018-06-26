@@ -5,22 +5,32 @@ import java.math.BigDecimal;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.spath.engine.SpathStackImpl;
 import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventBuilder;
 import org.spath.event.SpathEventEvaluator;
+import org.spath.query.SpathQueryBuilder;
+import org.spath.query.SpathQueryRelative;
+import org.spath.query.SpathQueryStart;
+import org.spath.query.SpathPredicateOperator;
+import org.spath.query.SpathPredicateAnd;
+import org.spath.query.SpathPredicateNumber;
+import org.spath.query.SpathPredicateOr;
+import org.spath.query.SpathPredicateString;
+import org.spath.query.SpathQueryType;
 
 import static org.spath.test.SpathEventFromString.toEvent;
 
 public class SpathPredicateTest extends TestCase {
-    SpathNameBuilder builder = new SpathNameBuilder();
+    SpathQueryBuilder builder = new SpathQueryBuilder();
     SpathEventEvaluator evaluator = new SpathEventEvaluator();
-    SpathStack<SpathEvent> stack = new SpathStack<SpathEvent>(evaluator);
+    SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(evaluator);
     
     @Test
     public void testStringEquals() {
-        SpathName element = builder.withType(SpathType.ROOT)
+        SpathQuery element = builder.withType(SpathQueryType.ROOT)
                 .withName("country")
-                .withPredicate("name", SpathOperator.EQ, "Mexico")
+                .withPredicate("name", SpathPredicateOperator.EQ, "Mexico")
                 .build();
         String elementString = "Match" + element.toString();
         assertEquals("/country[@name='Mexico']", element.toString());
@@ -39,9 +49,9 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStringNotEquals() {
-        SpathName element = builder.withType(SpathType.ROOT)
+        SpathQuery element = builder.withType(SpathQueryType.ROOT)
                 .withName("country")
-                .withPredicate("name", SpathOperator.NE, "Mexico")
+                .withPredicate("name", SpathPredicateOperator.NE, "Mexico")
                 .build();
         String elementString = element.toString();
         assertEquals("/country[@name!='Mexico']", element.toString());
@@ -61,9 +71,9 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStringLessThan() {
-        SpathName element = builder.withType(SpathType.ROOT)
+        SpathQuery element = builder.withType(SpathQueryType.ROOT)
                 .withName("country")
-                .withPredicate("name", SpathOperator.LT, "Mexico")
+                .withPredicate("name", SpathPredicateOperator.LT, "Mexico")
                 .build();
         String elementString = element.toString();
         assertEquals("/country[@name<'Mexico']", elementString);
@@ -83,9 +93,9 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStringLessEqual() {
-        SpathName element = builder.withType(SpathType.ROOT)
+        SpathQuery element = builder.withType(SpathQueryType.ROOT)
                 .withName("country")
-                .withPredicate("name", SpathOperator.LE, "Mexico")
+                .withPredicate("name", SpathPredicateOperator.LE, "Mexico")
                 .build();
         String elementString = element.toString();
         assertEquals("/country[@name<='Mexico']", elementString);
@@ -105,9 +115,9 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStringGreaterThan() {
-        SpathName element = builder.withType(SpathType.ROOT)
+        SpathQuery element = builder.withType(SpathQueryType.ROOT)
                 .withName("country")
-                .withPredicate("name", SpathOperator.GT, "Mexico")
+                .withPredicate("name", SpathPredicateOperator.GT, "Mexico")
                 .build();
         String elementString = "Match " + element.toString();
         assertEquals("/country[@name>'Mexico']", element.toString());
@@ -127,9 +137,9 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStringGreaterEqual() {
-        SpathName element = builder.withType(SpathType.ROOT)
+        SpathQuery element = builder.withType(SpathQueryType.ROOT)
                 .withName("country")
-                .withPredicate("name", SpathOperator.GE, "Mexico")
+                .withPredicate("name", SpathPredicateOperator.GE, "Mexico")
                 .build();
         String elementString = "Match " + element.toString();
         assertEquals("/country[@name>='Mexico']", element.toString());
@@ -149,10 +159,10 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testAndAttributeEquals() {
-        SpathPredicate attr1 = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
-        SpathPredicate attr2 = new SpathPredicateString("currency", SpathOperator.EQ, "USD");
+        SpathPredicate attr1 = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
+        SpathPredicate attr2 = new SpathPredicateString("currency", SpathPredicateOperator.EQ, "USD");
         SpathMatch and1 = new SpathPredicateAnd(attr1, attr2);
-        SpathName element = builder.withType(SpathType.ROOT)
+        SpathQuery element = builder.withType(SpathQueryType.ROOT)
                 .withName("amount")
                 .withPredicate(and1)
                 .build();
@@ -168,9 +178,9 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testMultiPredicateEquals() {
-        SpathNameStart amount = new SpathNameStart("amount");
-        SpathPredicate type = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
-        SpathPredicate currency = new SpathPredicateString("currency", SpathOperator.EQ, "USD");
+        SpathQueryStart amount = new SpathQueryStart("amount");
+        SpathPredicate type = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
+        SpathPredicate currency = new SpathPredicateString("currency", SpathPredicateOperator.EQ, "USD");
         amount.add(type);
         amount.add(currency);
         assertEquals("/amount[@type='decimal' and @currency='USD']", amount.toString());
@@ -184,9 +194,9 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testMultiPredicateMissmatch() {
-        SpathNameStart amount = new SpathNameStart("amount");
-        SpathPredicate type = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
-        SpathPredicate currency = new SpathPredicateString("currency", SpathOperator.EQ, "AUD");
+        SpathQueryStart amount = new SpathQueryStart("amount");
+        SpathPredicate type = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
+        SpathPredicate currency = new SpathPredicateString("currency", SpathPredicateOperator.EQ, "AUD");
         amount.add(type);
         amount.add(currency);
         assertEquals("/amount[@type='decimal' and @currency='AUD']", amount.toString());
@@ -200,7 +210,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testAttributeExists() {
-        SpathNameStart element = new SpathNameStart("amount");
+        SpathQueryStart element = new SpathQueryStart("amount");
         SpathPredicate attr = new SpathPredicateString("type", null, null);
         element.add(attr);
         assertEquals("/amount[@type]", element.toString());
@@ -214,7 +224,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testMultiAttributeExists() {
-        SpathNameStart element = new SpathNameStart("amount");
+        SpathQueryStart element = new SpathQueryStart("amount");
         SpathPredicate attr = new SpathPredicateString("type", null, null);
         element.add(attr);
         assertEquals("/amount[@type]", element.toString());
@@ -228,8 +238,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testSimpleMismatch() {
-        SpathNameStart element = new SpathNameStart("amount");
-        SpathPredicate attr = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
+        SpathQueryStart element = new SpathQueryStart("amount");
+        SpathPredicate attr = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
         element.add(attr);
         assertEquals("/amount[@type='decimal']", element.toString());
 
@@ -242,8 +252,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeEquals() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicate attr = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicate attr = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
         element.add(attr);
         assertEquals("/*[@type='decimal']", element.toString());
 
@@ -256,8 +266,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeNotEquals() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicate attr = new SpathPredicateString("type", SpathOperator.NE, "decimal");
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicate attr = new SpathPredicateString("type", SpathPredicateOperator.NE, "decimal");
         element.add(attr);
         assertEquals("/*[@type!='decimal']", element.toString());
 
@@ -274,8 +284,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeEqualsNumber() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicateNumber attr = new SpathPredicateNumber("amount", SpathOperator.EQ, new BigDecimal("123.456"));
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicateNumber attr = new SpathPredicateNumber("amount", SpathPredicateOperator.EQ, new BigDecimal("123.456"));
         element.add(attr);
         assertEquals("/*[@amount=123.456]", element.toString());
 
@@ -291,8 +301,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeNotEqualsNumber() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicateNumber attr = new SpathPredicateNumber("amount", SpathOperator.NE, new BigDecimal("123.456"));
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicateNumber attr = new SpathPredicateNumber("amount", SpathPredicateOperator.NE, new BigDecimal("123.456"));
         element.add(attr);
         assertEquals("/*[@amount!=123.456]", element.toString());
 
@@ -308,8 +318,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeLessThanNumber() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathOperator.LT, new BigDecimal("30"));
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathPredicateOperator.LT, new BigDecimal("30"));
         element.add(attr);
         assertEquals("/*[@price<30]", element.toString());
 
@@ -328,8 +338,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeGreaterThanNumber() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathOperator.GT, new BigDecimal("30"));
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathPredicateOperator.GT, new BigDecimal("30"));
         element.add(attr);
         assertEquals("/*[@price>30]", element.toString());
 
@@ -348,8 +358,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeLessEqualNumber() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathOperator.LE, new BigDecimal("30"));
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathPredicateOperator.LE, new BigDecimal("30"));
         element.add(attr);
         assertEquals("/*[@price<=30]", element.toString());
 
@@ -368,8 +378,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeGreaterEqualNumber() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathOperator.GE, new BigDecimal("30"));
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicateNumber attr = new SpathPredicateNumber("price", SpathPredicateOperator.GE, new BigDecimal("30"));
         element.add(attr);
         assertEquals("/*[@price>=30]", element.toString());
 
@@ -388,9 +398,9 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeAndNumber() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicateNumber op1 = new SpathPredicateNumber("price", SpathOperator.GE, new BigDecimal("30"));
-        SpathPredicateNumber op2 = new SpathPredicateNumber("price", SpathOperator.LT, new BigDecimal("40"));
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicateNumber op1 = new SpathPredicateNumber("price", SpathPredicateOperator.GE, new BigDecimal("30"));
+        SpathPredicateNumber op2 = new SpathPredicateNumber("price", SpathPredicateOperator.LT, new BigDecimal("40"));
         SpathPredicateAnd expr = new SpathPredicateAnd(op1, op2);
         element.add(expr);
         assertEquals("/*[@price>=30 and @price<40]", element.toString());
@@ -413,9 +423,9 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testStarAttributeOrNumber() {
-        SpathNameStart element = new SpathNameStart();
-        SpathPredicateNumber op1 = new SpathPredicateNumber("price", SpathOperator.LT, new BigDecimal("30"));
-        SpathPredicateNumber op2 = new SpathPredicateNumber("price", SpathOperator.GE, new BigDecimal("40"));
+        SpathQueryStart element = new SpathQueryStart();
+        SpathPredicateNumber op1 = new SpathPredicateNumber("price", SpathPredicateOperator.LT, new BigDecimal("30"));
+        SpathPredicateNumber op2 = new SpathPredicateNumber("price", SpathPredicateOperator.GE, new BigDecimal("40"));
         SpathPredicateOr expr = new SpathPredicateOr(op1, op2);
         element.add(expr);
         assertEquals("/*[@price<30 or @price>=40]", element.toString());
@@ -438,8 +448,8 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testRelativeStarAttributeEquals() {
-        SpathNameRelative element = new SpathNameRelative();
-        SpathPredicate attr = new SpathPredicateString("type", SpathOperator.EQ, "decimal");
+        SpathQueryRelative element = new SpathQueryRelative();
+        SpathPredicate attr = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
         element.add(attr);
         assertEquals("//*[@type='decimal']", element.toString());
 
@@ -455,10 +465,10 @@ public class SpathPredicateTest extends TestCase {
     @Test
     public void testInvalidCharacters() {
         try {
-            new SpathNameStart("/data");
+            new SpathQueryStart("/data");
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
-            assertEquals("Invalid character : '/' in SpathName: /data", ex.getMessage());
+            assertEquals("Invalid character : '/' in SpathQuery: /data", ex.getMessage());
         }
     }
 }

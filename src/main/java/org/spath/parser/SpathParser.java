@@ -2,17 +2,17 @@ package org.spath.parser;
 
 import java.math.BigDecimal;
 
-import org.spath.SpathException;
 import org.spath.SpathMatch;
-import org.spath.SpathName;
-import org.spath.SpathNameBuilder;
-import org.spath.SpathOperator;
-import org.spath.SpathPredicateAnd;
-import org.spath.SpathPredicateBoolean;
-import org.spath.SpathPredicateNumber;
-import org.spath.SpathPredicateOr;
-import org.spath.SpathPredicateString;
-import org.spath.SpathType;
+import org.spath.SpathQuery;
+import org.spath.query.SpathQueryException;
+import org.spath.query.SpathQueryBuilder;
+import org.spath.query.SpathPredicateOperator;
+import org.spath.query.SpathPredicateAnd;
+import org.spath.query.SpathPredicateBoolean;
+import org.spath.query.SpathPredicateNumber;
+import org.spath.query.SpathPredicateOr;
+import org.spath.query.SpathPredicateString;
+import org.spath.query.SpathQueryType;
 
 public class SpathParser {
     private static final String TRUE = "true";
@@ -39,16 +39,16 @@ public class SpathParser {
         return getLexer().getInput();
     }
 
-    public SpathName parse(String expression) {
+    public SpathQuery parse(String expression) {
         getInput().setLine(expression);
         
-        SpathName expr = spath();
+        SpathQuery expr = spath();
         
         return expr;
     }
     
-    SpathName spath() {
-        SpathName expr = null;
+    SpathQuery spath() {
+        SpathQuery expr = null;
         lexer.nextToken();
         while (lexer.hasNext()) {
             return root();
@@ -56,39 +56,39 @@ public class SpathParser {
         return expr;
     }
     
-    SpathName root() {
-        SpathName expr = null;
-        if (accept(TokenType.OPERATOR, "/")) {
-            SpathNameBuilder build = new SpathNameBuilder()
-                .withType(SpathType.ROOT)
+    SpathQuery root() {
+        SpathQuery expr = null;
+        if (accept(SpathToken.OPERATOR, "/")) {
+            SpathQueryBuilder build = new SpathQueryBuilder()
+                .withType(SpathQueryType.ROOT)
                 .withName(element())
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
-        } else if (accept(TokenType.OPERATOR, "//")) {
-            SpathNameBuilder build = new SpathNameBuilder()
-                .withType(SpathType.RELATIVE)
+        } else if (accept(SpathToken.OPERATOR, "//")) {
+            SpathQueryBuilder build = new SpathQueryBuilder()
+                .withType(SpathQueryType.RELATIVE)
                 .withName(element())
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
         } else {
-            SpathNameBuilder build = new SpathNameBuilder()
+            SpathQueryBuilder build = new SpathQueryBuilder()
                 .withName(element())
-                .withType(SpathType.RELATIVE)
+                .withType(SpathQueryType.RELATIVE)
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
         }
         return expr;
     }
     
-    SpathName extension(SpathName parent) {
-        SpathNameBuilder build = new SpathNameBuilder(parent);
-        SpathName expr = null;
-        if (accept(TokenType.OPERATOR, "/")) {
+    SpathQuery extension(SpathQuery parent) {
+        SpathQueryBuilder build = new SpathQueryBuilder(parent);
+        SpathQuery expr = null;
+        if (accept(SpathToken.OPERATOR, "/")) {
             build.withName(element())
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
-        } else if (accept(TokenType.OPERATOR, "//")) {
-            build.withType(SpathType.RELATIVE)
+        } else if (accept(SpathToken.OPERATOR, "//")) {
+            build.withType(SpathQueryType.RELATIVE)
                 .withName(element())
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
@@ -99,11 +99,11 @@ public class SpathParser {
     }
     
     String element() {
-        if (match(TokenType.IDENTIFIER)) {
+        if (match(SpathToken.IDENTIFIER)) {
             String value = lexer.getTokenValue();
             nextToken();
             return value;
-        } else if (accept(TokenType.DELIMITER, "*")) {
+        } else if (accept(SpathToken.DELIMITER, "*")) {
             return STAR;
         } else {
             throw exception("Expected a name or *");
@@ -112,22 +112,22 @@ public class SpathParser {
     
     SpathMatch predicateOpt() {
         SpathMatch predicate = null;
-        if (accept(TokenType.DELIMITER, "[")) {
+        if (accept(SpathToken.DELIMITER, "[")) {
             predicate = predicateMult();
-            expect(TokenType.DELIMITER, "]", "Predicate must be closed with ']' not " + lexer.getTokenValue());
+            expect(SpathToken.DELIMITER, "]", "Predicate must be closed with ']' not " + lexer.getTokenValue());
         }
         return predicate;
     }
     
     SpathMatch predicateMult() {
         SpathMatch predicate = predicate();
-        while (!match(TokenType.DELIMITER, "]")) {
-            if (match(TokenType.IDENTIFIER) 
+        while (!match(SpathToken.DELIMITER, "]")) {
+            if (match(SpathToken.IDENTIFIER) 
                     && AND.equalsIgnoreCase(lexer.getTokenValue())) {
                 nextToken();
                 SpathMatch operand2 = predicate();
                 predicate = new SpathPredicateAnd(predicate, operand2);
-            } else  if (match(TokenType.IDENTIFIER) 
+            } else  if (match(SpathToken.IDENTIFIER) 
                     && OR.equalsIgnoreCase(lexer.getTokenValue())) {
                 nextToken();
                 SpathMatch operand2 = predicate();
@@ -139,21 +139,21 @@ public class SpathParser {
     
     SpathMatch predicate() {
         SpathMatch predicate = null;
-        if (accept(TokenType.DELIMITER, "@")) {
+        if (accept(SpathToken.DELIMITER, "@")) {
             String name = element();
-            if (match(TokenType.OPERATOR)) {
-                SpathOperator operator = predicateOperator();
-                if (match(TokenType.STRING)) {
+            if (match(SpathToken.OPERATOR)) {
+                SpathPredicateOperator operator = predicateOperator();
+                if (match(SpathToken.STRING)) {
                     String value = quotedString();
                     predicate = new SpathPredicateString(name, operator, value);
-                } else if (match(TokenType.DECIMAL) || match(TokenType.NUMBER)) {
+                } else if (match(SpathToken.DECIMAL) || match(SpathToken.NUMBER)) {
                     BigDecimal value = decimalNumber();
                     predicate = new SpathPredicateNumber(name, operator, value);
-                } else if (match(TokenType.IDENTIFIER) 
+                } else if (match(SpathToken.IDENTIFIER) 
                         && TRUE.equalsIgnoreCase(lexer.getTokenValue())) {
                     predicate = new SpathPredicateBoolean(name, operator, Boolean.TRUE);
                     nextToken();
-                } else if (match(TokenType.IDENTIFIER) 
+                } else if (match(SpathToken.IDENTIFIER) 
                         && FALSE.equalsIgnoreCase(lexer.getTokenValue())) {
                     predicate = new SpathPredicateBoolean(name, operator, Boolean.FALSE);
                     nextToken();
@@ -169,26 +169,26 @@ public class SpathParser {
         return predicate;
     }
     
-    SpathOperator predicateOperator() {
-        if (accept(TokenType.OPERATOR, "=")) {
-            return SpathOperator.EQ;
-        } else if (accept(TokenType.OPERATOR, "!=")) {
-            return SpathOperator.NE;
-        } else if (accept(TokenType.OPERATOR, "<")) {
-            return SpathOperator.LT;
-        } else if (accept(TokenType.OPERATOR, "<=")) {
-            return SpathOperator.LE;
-        } else if (accept(TokenType.OPERATOR, ">")) {
-            return SpathOperator.GT;
-        } else if (accept(TokenType.OPERATOR, ">=")) {
-            return SpathOperator.GE;
+    SpathPredicateOperator predicateOperator() {
+        if (accept(SpathToken.OPERATOR, "=")) {
+            return SpathPredicateOperator.EQ;
+        } else if (accept(SpathToken.OPERATOR, "!=")) {
+            return SpathPredicateOperator.NE;
+        } else if (accept(SpathToken.OPERATOR, "<")) {
+            return SpathPredicateOperator.LT;
+        } else if (accept(SpathToken.OPERATOR, "<=")) {
+            return SpathPredicateOperator.LE;
+        } else if (accept(SpathToken.OPERATOR, ">")) {
+            return SpathPredicateOperator.GT;
+        } else if (accept(SpathToken.OPERATOR, ">=")) {
+            return SpathPredicateOperator.GE;
         } else {
             throw exception("Predicate operator expected, e.g. = != < <= > >=");
         }
     }
     
     String quotedString() {
-        if (match(TokenType.STRING)) {
+        if (match(SpathToken.STRING)) {
             String value = lexer.getTokenString();
             nextToken();
             return value;
@@ -198,7 +198,7 @@ public class SpathParser {
     }
     
     BigDecimal decimalNumber() {
-        if (match(TokenType.DECIMAL) || match(TokenType.NUMBER)) {
+        if (match(SpathToken.DECIMAL) || match(SpathToken.NUMBER)) {
             BigDecimal value = lexer.getTokenDecimal();
             nextToken();
             return value;
@@ -207,17 +207,17 @@ public class SpathParser {
         }
     }
     
-    public boolean match(TokenType s)
+    public boolean match(SpathToken s)
     {
-        TokenType token = lexer.getTokenType();
+        SpathToken token = lexer.getTokenType();
         return (token == s);
     }
 
-    public boolean match(TokenType s, String value)
+    public boolean match(SpathToken s, String value)
     {
-        TokenType token = lexer.getTokenType();
+        SpathToken token = lexer.getTokenType();
         String tokenValue;
-        if (s == TokenType.STRING || s == TokenType.CHARACTER) {
+        if (s == SpathToken.STRING || s == SpathToken.CHARACTER) {
             tokenValue = Character.toString(lexer.getTokenDelimiter());
         } else {
             tokenValue = lexer.getTokenValue();
@@ -225,7 +225,7 @@ public class SpathParser {
         return (token == s && (value == null || value.equals(tokenValue)));
     }
     
-    public boolean accept(TokenType s, String value)
+    public boolean accept(SpathToken s, String value)
     {
         if (match(s, value)) 
         {
@@ -235,7 +235,7 @@ public class SpathParser {
         return false;
     }
     
-    public void expect(TokenType s, String value, String message)
+    public void expect(SpathToken s, String value, String message)
     {
         if (!accept(s, value)) {
             throw exception(message);
@@ -243,10 +243,10 @@ public class SpathParser {
     }
 
     /** Advance to the next token. */
-    public TokenType nextToken()
+    public SpathToken nextToken()
     {
-        TokenType token = lexer.nextToken();
-        if (token == TokenType.ERROR)
+        SpathToken token = lexer.nextToken();
+        if (token == SpathToken.ERROR)
         {
             throw exception(lexer.getErrorMessage());
         }
@@ -261,8 +261,8 @@ public class SpathParser {
      * @throws Exception -
      *             with details of the error.
      */
-    public SpathException exception(String message) {
-        SpathException ex = new SpathException(message);
+    public SpathQueryException exception(String message) {
+        SpathQueryException ex = new SpathQueryException(message);
         return ex;
     }
 

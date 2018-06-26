@@ -1,15 +1,18 @@
-package org.spath;
+package org.spath.query;
+
+import org.spath.SpathEvaluator;
+import org.spath.SpathPredicate;
 
 public class SpathPredicateString implements SpathPredicate {
     private final String name;
-    private final SpathOperator operator;
+    private final SpathPredicateOperator operator;
     private final String value;
     
     public SpathPredicateString(String name) {
         this(name, null, null);
     }
 
-    public SpathPredicateString(String name, SpathOperator operator, String value) {
+    public SpathPredicateString(String name, SpathPredicateOperator operator, String value) {
         this.name = name;
         this.operator = operator;
         this.value = value;
@@ -21,7 +24,7 @@ public class SpathPredicateString implements SpathPredicate {
     }
 
     @Override
-    public SpathOperator getOperator() {
+    public SpathPredicateOperator getOperator() {
         return operator;
     }
 
@@ -39,17 +42,17 @@ public class SpathPredicateString implements SpathPredicate {
         if (getName().equals(name)) {
             if (getOperator() == null) {
                 return true;
-            } else if (getOperator() == SpathOperator.EQ) {
+            } else if (getOperator() == SpathPredicateOperator.EQ) {
                 return (0 == getValue().compareTo(value));
-            } else if (getOperator() == SpathOperator.NE){
+            } else if (getOperator() == SpathPredicateOperator.NE){
                 return (0 != getValue().compareTo(value));
-            } else if (getOperator() == SpathOperator.LT){
+            } else if (getOperator() == SpathPredicateOperator.LT){
                 return (0 < getValue().compareTo(value));
-            } else if (getOperator() == SpathOperator.LE){
+            } else if (getOperator() == SpathPredicateOperator.LE){
                 return (0 <= getValue().compareTo(value));
-            } else if (getOperator() == SpathOperator.GT){
+            } else if (getOperator() == SpathPredicateOperator.GT){
                 return (0 > getValue().compareTo(value));
-            } else if (getOperator() == SpathOperator.GE){
+            } else if (getOperator() == SpathPredicateOperator.GE){
                 return (0 >= getValue().compareTo(value));
             }
         }

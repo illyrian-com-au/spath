@@ -1,29 +1,36 @@
-package org.spath;
+package org.spath.engine;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.spath.SpathEngine;
+import org.spath.SpathEventSource;
+import org.spath.SpathMatch;
+import org.spath.SpathQuery;
+import org.spath.SpathStack;
+import org.spath.query.SpathQueryException;
+
 public class SpathEngineImpl<T> implements SpathEngine {
     final SpathStack<T> stack;
     final SpathEventSource<T> source;
-    final Map<String, SpathName> pathMap;
+    final Map<String, SpathQuery> pathMap;
     
     SpathMatch lastMatched = null;
     
     public SpathEngineImpl(SpathStack<T> stack, SpathEventSource<T> source) {
         this.stack = stack;
         this.source = source;
-        pathMap = new HashMap<String, SpathName>();
+        pathMap = new HashMap<String, SpathQuery>();
     }
     
     @Override
-    public SpathName add(SpathName name) {
+    public SpathQuery add(SpathQuery name) {
         pathMap.put(name.toString(), name);
         return name;
     }
     
     @Override
-    public boolean matchNext(SpathName base) throws SpathException {
+    public boolean matchNext(SpathQuery base) { 
         lastMatched = null;
         while (source.nextEvent(stack)) {
             if (base != null && !stack.partial(base)) {
@@ -35,8 +42,8 @@ public class SpathEngineImpl<T> implements SpathEngine {
         return false;
     }
     
-    public boolean matchNext(String spath) throws SpathException {
-        SpathName target = pathMap.get(spath);
+    public boolean matchNext(String spath) { 
+        SpathQuery target = pathMap.get(spath);
         if (target != null) {
             return matchNext(target);
         }
@@ -44,7 +51,7 @@ public class SpathEngineImpl<T> implements SpathEngine {
     }
     
     @Override
-    public boolean matchNext() throws SpathException {
+    public boolean matchNext() {
         lastMatched = null;
         while (source.nextEvent(stack)) {
             if ((lastMatched = findMatch()) != null) {
@@ -55,7 +62,7 @@ public class SpathEngineImpl<T> implements SpathEngine {
     }
     
     public SpathMatch findMatch() {
-        for (SpathName target : pathMap.values()) {
+        for (SpathQuery target : pathMap.values()) {
             if (stack.match(target)) {
                 return target;
             }
@@ -63,12 +70,12 @@ public class SpathEngineImpl<T> implements SpathEngine {
         return null;
     }
     
-    public boolean partial(SpathName target) {
+    public boolean partial(SpathQuery target) {
         return stack.partial(target);
     }
     
     @Override
-    public boolean match(SpathName target) {
+    public boolean match(SpathQuery target) {
         if (stack.match(target)) {
             lastMatched = target;
             return true;
@@ -78,7 +85,7 @@ public class SpathEngineImpl<T> implements SpathEngine {
     }
     
     public boolean match(String spath) {
-        SpathName target = pathMap.get(spath);
+        SpathQuery target = pathMap.get(spath);
         if (target != null) {
             return match(target);
         }
@@ -86,7 +93,7 @@ public class SpathEngineImpl<T> implements SpathEngine {
     }
     
     @Override
-    public String getText() throws SpathException {
+    public String getText() throws SpathQueryException {
         return source.getText(stack);
     }
     

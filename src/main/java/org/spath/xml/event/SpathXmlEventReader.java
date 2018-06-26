@@ -7,8 +7,8 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.spath.SpathEventSource;
-import org.spath.SpathException;
 import org.spath.SpathStack;
+import org.spath.query.SpathQueryException;
 
 import com.sun.xml.internal.stream.events.CharacterEvent;
 
@@ -20,7 +20,7 @@ public class SpathXmlEventReader implements SpathEventSource<StartElement> {
     }
     
     @Override
-    public boolean nextEvent(SpathStack<StartElement> engine) throws SpathException {
+    public boolean nextEvent(SpathStack<StartElement> engine) throws SpathQueryException {
         try {
             XMLEvent event;
             while (reader.hasNext()) {
@@ -34,12 +34,12 @@ public class SpathXmlEventReader implements SpathEventSource<StartElement> {
             }
             return false;
         } catch (XMLStreamException ex) {
-            throw new SpathException("Could not read nextEvent", ex);
+            throw new SpathQueryException("Could not read nextEvent", ex);
         }
     }
 
     @Override
-    public String getText(SpathStack<StartElement> engine) throws SpathException {
+    public String getText(SpathStack<StartElement> engine) throws SpathQueryException {
         try {
             if (reader.peek() instanceof CharacterEvent) {
                 CharacterEvent event = (CharacterEvent)reader.peek();
@@ -47,7 +47,7 @@ public class SpathXmlEventReader implements SpathEventSource<StartElement> {
             }
             return "";
         } catch (XMLStreamException ex) {
-            throw new SpathException("Could not peek nextEvent", ex);
+            throw new SpathQueryException("Could not peek nextEvent", ex);
         }
     }
 }

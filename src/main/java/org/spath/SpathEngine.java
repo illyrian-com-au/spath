@@ -1,15 +1,17 @@
 package org.spath;
 
+import org.spath.query.SpathQueryException;
+
 public interface SpathEngine {
 
-    boolean matchNext(SpathName base) throws SpathException;
+    boolean matchNext(SpathQuery base) throws SpathQueryException;
 
-    boolean matchNext() throws SpathException;
+    boolean matchNext() throws SpathQueryException;
 
-    boolean match(SpathName target);
+    boolean match(SpathQuery target);
 
-    SpathName add(SpathName name);
+    SpathQuery add(SpathQuery name);
 
-    String getText() throws SpathException;
+    String getText() throws SpathQueryException;
 
 }
