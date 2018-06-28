@@ -37,7 +37,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("//amount[@type='decimal']", amount.toString());
 
         SpathEngine engine = createSpathEngine("<amount type='decimal'>10.25</amount>");
-        engine.add(amount);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //amount[@type='decimal']", engine.match(amount));
@@ -51,7 +51,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("/amount[@type='decimal']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal'>10.25</amount>");
-        engine.add(amount);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //amount[@type='decimal']", engine.match(amount));
@@ -65,7 +65,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("/amount[@currency='USD' and @type='decimal']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
-        engine.add(amount);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //amount[@type='decimal']", engine.match(amount));
@@ -79,7 +79,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("/amount[@currency='USD' and @type='decimal']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
-        engine.add(amount);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //amount[@type='decimal']", engine.match(amount));
@@ -93,7 +93,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("/amount[@type]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
-        engine.add(amount);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //amount[@type]", engine.match(amount));
@@ -107,7 +107,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("/amount[@type and @currency]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
-        engine.add(amount);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //amount[@type and @currency]", engine.match(amount));
@@ -121,7 +121,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("/amount[@currency='AUD']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
-        engine.add(amount);
+        engine.query(amount);
         
         assertFalse("Shound not matchNext()", engine.matchNext());
     }
@@ -132,7 +132,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("/*[@currency='USD']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='USD'>10.25</amount>");
-        engine.add(amount);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //*[@currency='USD']", engine.match(amount));
@@ -146,7 +146,7 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("//*[@currency!='USD']", amount.toString());
     
         SpathEngine engine = createSpathEngine("<amount type='decimal' currency='AUD'>10.25</amount>");
-        engine.add(amount);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //*[@currency!='USD']", engine.match(amount));
@@ -162,8 +162,8 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("//item[@amount=10.25]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<item amount='10.25'>Lunch</item>");
-        engine.add(item);
-        engine.add(amount);
+        engine.query(item);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //item[@amount=10.25]", engine.match(amount));
@@ -179,8 +179,8 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("//*[@amount=10.25]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<item amount='10.25'>Lunch</item>");
-        engine.add(item);
-        engine.add(amount);
+        engine.query(item);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //item[@amount=10.25]", engine.match(amount));
@@ -196,8 +196,8 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("//*[@amount!=10.25]", amount.toString());
     
         SpathEngine engine = createSpathEngine("<item amount='10.00'>Lunch</item>");
-        engine.add(item);
-        engine.add(amount);
+        engine.query(item);
+        engine.query(amount);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match //*[@amount!=10.25]", engine.match(amount));
@@ -216,8 +216,8 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("//*[@price<30]", element.toString());
     
         SpathEngine engine = createSpathEngine(SHOES);
-        engine.add(item);
-        engine.add(element);
+        engine.query(item);
+        engine.query(element);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match [@price<30]", engine.match(element));
@@ -236,8 +236,8 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("//*[@price>30]", element.toString());
     
         SpathEngine engine = createSpathEngine(SHOES);
-        engine.add(item);
-        engine.add(element);
+        engine.query(item);
+        engine.query(element);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertFalse("Should match [@price>30]", engine.match(element));
@@ -256,8 +256,8 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("//*[@price<=30]", element.toString());
     
         SpathEngine engine = createSpathEngine(SHOES);
-        engine.add(item);
-        engine.add(element);
+        engine.query(item);
+        engine.query(element);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertTrue("Should match [@price<=30]", engine.match(element));
@@ -276,8 +276,8 @@ public class SpathXmlStreamPredicateTest extends TestCase {
         assertEquals("//*[@price>=30]", element.toString());
     
         SpathEngine engine = createSpathEngine(SHOES);
-        engine.add(item);
-        engine.add(element);
+        engine.query(item);
+        engine.query(element);
         
         assertTrue("Shound matchNext()", engine.matchNext());
         assertFalse("Should match [@price>=30]", engine.match(element));
@@ -297,8 +297,8 @@ public class SpathXmlStreamPredicateTest extends TestCase {
     
         String shoes = "<shoes><shoe price='20.00'/><shoe price='30.00'/><shoe price='39.99'/><shoe price='40.00'/></shoes>";
         SpathEngine engine = createSpathEngine(shoes);
-        engine.add(item);
-        engine.add(element);
+        engine.query(item);
+        engine.query(element);
         
         assertTrue("Shound matchNext()", engine.matchNext()); // <shoe price='20.00'/>
         assertFalse("Should match [@price>=30 and @price<40]", engine.match(element));
@@ -321,8 +321,8 @@ public class SpathXmlStreamPredicateTest extends TestCase {
     
         String shoes = "<shoes><shoe price='20.00'/><shoe price='30.00'/><shoe price='30.01'/><shoe price='40.00'/></shoes>";
         SpathEngine engine = createSpathEngine(shoes);
-        engine.add(item);
-        engine.add(element);
+        engine.query(item);
+        engine.query(element);
         
         assertTrue("Shound matchNext()", engine.matchNext()); // <shoe price='20.00'/>
         assertTrue("Should match [[@price<30 or @price>=40]", engine.match(element));

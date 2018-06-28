@@ -47,6 +47,14 @@ public class SpathParser {
         return expr;
     }
     
+    public SpathQuery parse(SpathQuery parent, String expression) {
+        getInput().setLine(expression);
+        
+        SpathQuery expr = extension(parent);
+        
+        return expr;
+    }
+    
     SpathQuery spath() {
         SpathQuery expr = null;
         lexer.nextToken();

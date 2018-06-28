@@ -1,9 +1,9 @@
 package org.spath;
 
-import org.spath.query.SpathQueryElement;
 import org.spath.query.SpathPredicateBoolean;
 import org.spath.query.SpathPredicateNumber;
 import org.spath.query.SpathPredicateString;
+import org.spath.query.SpathQueryElement;
 
 public interface SpathEvaluator<T> {
     boolean match(SpathQueryElement target, T event);

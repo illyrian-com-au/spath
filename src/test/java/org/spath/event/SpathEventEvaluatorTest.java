@@ -35,7 +35,7 @@ public class SpathEventEvaluatorTest extends TestCase {
         };
         SpathEngine engine = createEngine(list);
         SpathQuery data = spath.withName("data").build();
-        engine.add(data);
+        engine.query(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
         assertEquals("Hello World", engine.getText());
@@ -58,7 +58,7 @@ public class SpathEventEvaluatorTest extends TestCase {
         SpathQuery usd = spath.withName("data")
                 .withPredicate("currency", SpathPredicateOperator.EQ, "USD")
                 .build();
-        engine.add(data);
+        engine.query(data);
         // /data(currency="AUD") 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -83,8 +83,8 @@ public class SpathEventEvaluatorTest extends TestCase {
         SpathQuery usd = spath.withName("data")
                 .withPredicate("amount", SpathPredicateOperator.LE, new BigDecimal("10.25"))
                 .build();
-        engine.add(usd);
-        engine.add(data);
+        engine.query(usd);
+        engine.query(data);
         // /data(amount=12.50) 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -109,8 +109,8 @@ public class SpathEventEvaluatorTest extends TestCase {
         SpathQuery usd = spath.withName("data")
                 .withPredicate("amount", SpathPredicateOperator.LE, new BigDecimal("10.25"))
                 .build();
-        engine.add(usd);
-        engine.add(data);
+        engine.query(usd);
+        engine.query(data);
         // /data(amount=12.50) 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -135,8 +135,8 @@ public class SpathEventEvaluatorTest extends TestCase {
         SpathQuery paid = spath.withName("data")
                 .withPredicate("paid", SpathPredicateOperator.EQ, new Boolean(true))
                 .build();
-        engine.add(paid);
-        engine.add(data);
+        engine.query(paid);
+        engine.query(data);
         // /data(paid=true) 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -161,8 +161,8 @@ public class SpathEventEvaluatorTest extends TestCase {
         SpathQuery paid = spath.withName("data")
                 .withPredicate("paid", SpathPredicateOperator.EQ, new Boolean(true))
                 .build();
-        engine.add(paid);
-        engine.add(data);
+        engine.query(paid);
+        engine.query(data);
         // /data(paid=true) 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));

@@ -8,14 +8,17 @@ import org.spath.SpathEventSource;
 import org.spath.SpathMatch;
 import org.spath.SpathQuery;
 import org.spath.SpathStack;
+import org.spath.parser.SpathParser;
 import org.spath.query.SpathQueryException;
 
 public class SpathEngineImpl<T> implements SpathEngine {
     final SpathStack<T> stack;
     final SpathEventSource<T> source;
     final Map<String, SpathQuery> pathMap;
+    final SpathParser parser = createSpathParser();
     
     SpathMatch lastMatched = null;
+    boolean firstPass = true;
     
     public SpathEngineImpl(SpathStack<T> stack, SpathEventSource<T> source) {
         this.stack = stack;
@@ -23,17 +26,51 @@ public class SpathEngineImpl<T> implements SpathEngine {
         pathMap = new HashMap<String, SpathQuery>();
     }
     
-    @Override
-    public SpathQuery add(SpathQuery name) {
-        pathMap.put(name.toString(), name);
-        return name;
+    protected SpathParser createSpathParser() {
+        return new SpathParser();
+    }
+    
+    
+    protected SpathMatch findMatch() {
+        for (SpathQuery target : pathMap.values()) {
+            if (stack.match(target)) {
+                return target;
+            }
+        }
+        return null;
+    }
+    
+    SpathQuery get(String expr) {
+        return pathMap.get(expr);
     }
     
     @Override
-    public boolean matchNext(SpathQuery base) { 
+    public SpathQuery query(String expr) {
+        SpathQuery query = pathMap.get(expr);
+        if (query == null) {
+            query = parser.parse(expr);
+            query(query);
+        }
+        return query;
+    }
+    
+    @Override
+    public SpathQuery query(SpathQuery query) {
+        pathMap.put(query.toString(), query);
+        return query;
+    }
+    
+    @Override
+    public boolean matchNext(String expr) { 
+        SpathQuery query = query(expr);
+        return matchNext(query);
+    }
+    
+    @Override
+    public boolean matchNext(SpathQuery query) { 
         lastMatched = null;
         while (source.nextEvent(stack)) {
-            if (base != null && !stack.partial(base)) {
+            if (query != null && !stack.partial(query)) {
                 break;
             } else if ((lastMatched = findMatch()) != null) {
                 return true;
@@ -42,16 +79,15 @@ public class SpathEngineImpl<T> implements SpathEngine {
         return false;
     }
     
-    public boolean matchNext(String spath) { 
-        SpathQuery target = pathMap.get(spath);
-        if (target != null) {
-            return matchNext(target);
-        }
-        return false;
-    }
-    
     @Override
     public boolean matchNext() {
+        if (firstPass) {
+            firstPass = false;
+            if (pathMap.isEmpty()) {
+                source.nextEvent(stack);
+                return true;
+            }
+        }
         lastMatched = null;
         while (source.nextEvent(stack)) {
             if ((lastMatched = findMatch()) != null) {
@@ -61,33 +97,21 @@ public class SpathEngineImpl<T> implements SpathEngine {
         return false;
     }
     
-    public SpathMatch findMatch() {
-        for (SpathQuery target : pathMap.values()) {
-            if (stack.match(target)) {
-                return target;
-            }
-        }
-        return null;
-    }
-    
-    public boolean partial(SpathQuery target) {
-        return stack.partial(target);
-    }
-    
     @Override
-    public boolean match(SpathQuery target) {
-        if (stack.match(target)) {
-            lastMatched = target;
+    public boolean match(SpathQuery query) {
+        if (stack.match(query)) {
+            lastMatched = query;
             return true;
         } else {
             return false;
         }
     }
     
-    public boolean match(String spath) {
-        SpathQuery target = pathMap.get(spath);
-        if (target != null) {
-            return match(target);
+    @Override
+    public boolean match(String expr) {
+        SpathQuery query = query(expr);
+        if (query != null) {
+            return match(query);
         }
         return false;
     }
@@ -97,6 +121,7 @@ public class SpathEngineImpl<T> implements SpathEngine {
         return source.getText(stack);
     }
     
+    @Override
     public String toString() {
         return "Stack: " + stack.toString() + "\nMatched: " + lastMatched;
     }

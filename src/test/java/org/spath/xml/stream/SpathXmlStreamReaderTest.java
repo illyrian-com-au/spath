@@ -45,7 +45,7 @@ public class SpathXmlStreamReaderTest extends TestCase {
         XMLStreamReader reader = xmlFactory.createXMLStreamReader(out.getLineReader());
         SpathEngine engine = factory.createEngine(reader);
         SpathQuery data = new SpathQueryStart("data");
-        engine.add(data);
+        engine.query(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
         assertEquals("Hello World", engine.getText());
@@ -62,8 +62,8 @@ public class SpathXmlStreamReaderTest extends TestCase {
         
         XMLStreamReader reader = xmlFactory.createXMLStreamReader(out.getLineReader());
         SpathEngine engine = factory.createEngine(reader);
-        SpathQuery data = engine.add(new SpathQueryStart("data"));
-        SpathQuery bold = engine.add(new SpathQueryElement(data, "b"));
+        SpathQuery data = engine.query(new SpathQueryStart("data"));
+        SpathQuery bold = engine.query(new SpathQueryElement(data, "b"));
 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -84,7 +84,7 @@ public class SpathXmlStreamReaderTest extends TestCase {
         SpathEngine engine = factory.createEngine(reader);
         SpathQueryStart data = new SpathQueryStart("data");
         data.add(new SpathPredicateString("lang", SpathPredicateOperator.EQ, "En"));
-        engine.add(data);
+        engine.query(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
         assertEquals("Hello World", engine.getText());
@@ -114,10 +114,10 @@ public class SpathXmlStreamReaderTest extends TestCase {
         
         XMLStreamReader reader = xmlFactory.createXMLStreamReader(out.getLineReader());
         SpathEngine engine = factory.createEngine(reader);
-        SpathQuery dataPath = engine.add(new SpathQueryStart("data"));
-        SpathQuery namePath = engine.add(new SpathQueryRelative("name"));
-        SpathQuery addressPath = engine.add(new SpathQueryRelative("address"));
-        SpathQuery pricePath = engine.add(new SpathQueryRelative("price"));
+        SpathQuery dataPath = engine.query(new SpathQueryStart("data"));
+        SpathQuery namePath = engine.query(new SpathQueryRelative("name"));
+        SpathQuery addressPath = engine.query(new SpathQueryRelative("address"));
+        SpathQuery pricePath = engine.query(new SpathQueryRelative("price"));
         
         String name = null;
         String address = null;

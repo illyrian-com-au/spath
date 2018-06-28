@@ -1,7 +1,10 @@
 package org.spath.xml.event;
 
+import java.io.StringReader;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
 import junit.framework.TestCase;
@@ -21,46 +24,37 @@ import com.sun.xml.internal.stream.events.CharacterEvent;
 import com.sun.xml.internal.stream.events.EndDocumentEvent;
 import com.sun.xml.internal.stream.events.StartElementEvent;
 
-public class SpathXmlEventReaderTest extends TestCase {
+public class SpathXmlEventExampleTest extends TestCase {
     XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
-    SpathXmlEventReaderFactory factory = new SpathXmlEventReaderFactory();
+    SpathXmlEventReaderFactory spathFactory = new SpathXmlEventReaderFactory();
     
-    @Test
-    public void testXmlEventReader() throws Exception {
-        StringReadWriter out = new StringReadWriter();
-        out.println("<data>Hello World</data>");
-        out.close();
-        
-        XMLEvent event;
-        XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
-        assertTrue("hasNext", reader.hasNext());
-        event = reader.nextTag();
-        assertEquals(StartElementEvent.class, event.getClass());
-        assertEquals("<data>", event.toString());
-        assertEquals(CharacterEvent.class, reader.peek().getClass());
-        String text = reader.getElementText();
-        assertEquals("Hello World", text);
-
-        assertEquals(EndDocumentEvent.class, reader.nextEvent().getClass());
-        assertFalse("End of document", reader.hasNext());
+    private SpathEngine createSpathEngine(String xml) throws XMLStreamException {
+        StringReader input = new StringReader(xml);
+        XMLEventReader reader = xmlFactory.createXMLEventReader(input);
+        SpathEngine engine = spathFactory.createEngine(reader);
+        return engine;
     }
 
     @Test
     public void testSimpleElement() throws Exception {
-        StringReadWriter out = new StringReadWriter();
-        out.println("<data>Hello World</data>");
-        out.close();
-        
-        XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
-        SpathEngine engine = factory.createEngine(reader);
-        SpathQuery data = new SpathQueryStart("data");
-        engine.query(data);
-        assertTrue("matchNext()", engine.matchNext());
-        assertTrue("match(data)", engine.match(data));
-        assertEquals("Hello World", engine.getText());
-        // Check that getText does not change the state
-        assertEquals("Hello World", engine.getText());
-        assertFalse("End of input", engine.matchNext());
+        SpathEngine engine = createSpathEngine("<data>Hello World</data>");
+        String text = null;
+        while (engine.matchNext()) {
+            if (engine.match("/data")) {
+                text = engine.getText();
+            }
+        }
+        assertEquals("Hello World", text);
+    }
+
+    @Test
+    public void testNextDataElement() throws Exception {
+        SpathEngine engine = createSpathEngine("<data>Hello World</data>");
+        String text = null;
+        while (engine.matchNext("/data")) {
+            text = engine.getText();
+        }
+        assertEquals("Hello World", text);
     }
 
     @Test
@@ -70,7 +64,7 @@ public class SpathXmlEventReaderTest extends TestCase {
         out.close();
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
-        SpathEngine engine = factory.createEngine(reader);
+        SpathEngine engine = spathFactory.createEngine(reader);
         SpathQuery data = engine.query(new SpathQueryStart("data"));
         SpathQuery bold = engine.query(new SpathQueryElement(data, "b"));
 
@@ -90,12 +84,9 @@ public class SpathXmlEventReaderTest extends TestCase {
         out.close();
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
-        SpathEngine engine = factory.createEngine(reader);
-        SpathQueryStart data = new SpathQueryStart("data");
-        data.add(new SpathPredicateString("lang", SpathPredicateOperator.EQ, "En"));
-        engine.query(data);
-        assertTrue("matchNext()", engine.matchNext());
-        assertTrue("match(data)", engine.match(data));
+        SpathEngine engine = spathFactory.createEngine(reader);
+        assertTrue("matchNext()", engine.matchNext("data"));
+        assertTrue("match(data)", engine.match("data[@lang='En']"));
         assertEquals("Hello World", engine.getText());
         // Check that getText does not change the state
         assertEquals("Hello World", engine.getText());
@@ -122,25 +113,20 @@ public class SpathXmlEventReaderTest extends TestCase {
         out.close();
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
-        SpathEngine engine = factory.createEngine(reader);
-        SpathQueryBuilder builder = new SpathQueryBuilder();
-        SpathQuery dataPath = engine.query(builder.withType(SpathQueryType.ROOT).withName("data").build());
-        SpathQuery namePath = engine.query(builder.withType(SpathQueryType.RELATIVE).withName("name").build());
-        SpathQuery addressPath = engine.query(builder.withType(SpathQueryType.RELATIVE).withName("address").build());
-        SpathQuery pricePath = engine.query(builder.withType(SpathQueryType.RELATIVE).withName("price").build());
+        SpathEngine engine = spathFactory.createEngine(reader);
         
         String name = null;
         String address = null;
         String price = null;
 
-        while (engine.matchNext(dataPath)) {
-            if (engine.match(namePath)) {
+        while (engine.matchNext("/data")) {
+            if (engine.match("name")) {
                 name = engine.getText();
             }
-            if (engine.match(addressPath)) {
+            if (engine.match("address")) {
                 address = engine.getText();
             }
-            if (engine.match(pricePath)) {
+            if (engine.match("trade/detail/price")) {
                 price = engine.getText();
             }
         }

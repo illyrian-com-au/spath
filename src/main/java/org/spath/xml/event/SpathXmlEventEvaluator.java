@@ -7,10 +7,10 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
 import org.spath.SpathEvaluator;
-import org.spath.query.SpathQueryElement;
 import org.spath.query.SpathPredicateBoolean;
 import org.spath.query.SpathPredicateNumber;
 import org.spath.query.SpathPredicateString;
+import org.spath.query.SpathQueryElement;
 
 public class SpathXmlEventEvaluator implements SpathEvaluator<StartElement> {
     public SpathXmlEventEvaluator() {
