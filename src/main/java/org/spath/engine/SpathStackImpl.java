@@ -22,6 +22,7 @@ public class SpathStackImpl<T> implements SpathStack<T> {
     
     @Override
     public boolean partial(SpathQuery target) {
+        // Match the target anywhere in the stack
         for (int i=stack.size(); target.getDepth()<=i; i--) {
             if (matchTarget(target, i - 1)) {
                 return true;
@@ -32,12 +33,16 @@ public class SpathStackImpl<T> implements SpathStack<T> {
     
     private boolean matchTarget(SpathQuery target, int index) {
         if (target == null) {
-            return true; // All targets matched
+            // Exit condition for recursive loop - whole SpathQuery has been matched
+            return true;
         } else if (size() < target.getDepth()) {
-            return false; // Stack is not deep enough
+            // Shortcut failure - stack is not deep enough to match target
+            return false; 
         } else {
+            // Match the event in the stack at the current level
             T event = getEvent(target, index);
             if (event != null && target.match(evaluator, event)) {
+                // Recursive call to match the parent level of the Spath query
                 return matchTarget(target.getParent(), index - 1);
             }
             return false;

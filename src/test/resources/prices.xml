@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shopping>
+  <item><name>Chocolate</name><price>5.25</price><gst>true</gst></item>
+  <item><name>Rice</name><price>7.00</price><gst>false</gst></item>
+  <item><name>Milk</name><price>1.00</price><gst>false</gst></item>
+  <item><name>Spagetti</name><price>2.75</price><gst>true</gst></item>
+  <item><name>Beef Mince</name><price>12.00</price><gst>true</gst></item>
+  <item><name>Yoghurt</name><price>3.50</price><gst>true</gst></item>
+  <item><name>Broccolli</name><price>1.75</price><gst>false</gst></item>
+</shopping>

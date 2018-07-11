@@ -34,24 +34,6 @@ public class SpathPredicateBoolean implements SpathPredicate {
         return eval.match(this, event);
     }
     
-    public Boolean getValueAsBoolean(Object value) {
-        if (value instanceof Boolean) {
-            return (Boolean)value;
-        } else if (value instanceof String) {
-            return getValueAsBoolean((String)value);
-        }
-        return null;
-    }
-    
-    public Boolean getValueAsBoolean(String valueString) {
-        if (TRUE.equalsIgnoreCase(valueString)) {
-            return Boolean.TRUE;
-        } else if (FALSE.equalsIgnoreCase(valueString)) {
-            return Boolean.FALSE;
-        }
-        return null;
-    }
-
     public boolean compareTo(String name, Boolean value) {
         if (getName().equals(name) && value != null) {
             if (getOperator() == null) {

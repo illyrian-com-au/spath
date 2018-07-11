@@ -40,6 +40,7 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
                     return true;
                 } else if (event == XMLStreamReader.END_ELEMENT) {
                     engine.pop();
+                    return true;
                 }
             }
             return false;
@@ -55,8 +56,9 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
                 return text;
             } else if (reader.isStartElement()) {
                 text = getText(reader);
-                SpathEvent element = engine.peek();
-                element.setText(text);
+                return text;
+            } else if (reader.isEndElement()) {
+                text = getText(reader);
                 return text;
             }
             return "";
@@ -79,7 +81,10 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
 
     private String getText(XMLStreamReader reader) throws XMLStreamException {
         StringBuffer buf = new StringBuffer();
-        int eventType = reader.next();
+        int eventType = reader.getEventType();
+        if (reader.isStartElement() || reader.isEndElement()) {
+            eventType = reader.next();
+        }
         while(true) {
             if(eventType == XMLStreamConstants.CHARACTERS ||
                     eventType == XMLStreamConstants.CDATA ||

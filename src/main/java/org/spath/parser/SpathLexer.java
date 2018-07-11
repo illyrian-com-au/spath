@@ -272,7 +272,7 @@ public class SpathLexer
      * The string without quotes is available from <code>getString()</code>.
      * The quote delimiter is available from <code>getDelimiter()</code>.
      * The entire token including quotes is available from <code>getTokenValue()</code>.
-     * @returns Lexer.CHARACTER
+     * @returns SpathToken.STRING
      */
     private SpathToken spanStringLiteral()
     {
@@ -302,15 +302,12 @@ public class SpathLexer
      */
     private void spanWhiteSpace()
     {
+        whitespace = "";
         char ch = input.startChar();
-        if (isWhitespace(ch)) {
-            while (isWhitespace(ch)) {
-                ch = input.nextChar();
-            }
-            whitespace = getTokenValue();
-        } else {
-            whitespace = "";
+        while (isWhitespace(ch)) {
+            ch = input.nextChar();
         }
+        whitespace = getTokenValue();
     }
 
     /**

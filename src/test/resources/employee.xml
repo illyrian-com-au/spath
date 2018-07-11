@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <employee>
+    <name>John Doe</name>
+    <address type='Residential'>
+      <street>1 Erehwon St</street>
+      <suburb>Elsewhere</suburb>
+      <state>VIC</state>
+      <postcode>3098</postcode>
+    </address>
+    <address type='Business'>
+      <street>1 Main St</street>
+      <suburb>Elsewhere</suburb>
+      <state>VIC</state>
+      <postcode>3099</postcode>
+    </address>
+    <address type='Postal'>
+      <street>P.O.Box 1234</street>
+      <suburb>Elsewhere</suburb>
+      <state>VIC</state>
+      <postcode>3099</postcode>
+    </address>
+  </employee>
+</data>

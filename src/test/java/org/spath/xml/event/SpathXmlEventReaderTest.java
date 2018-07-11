@@ -1,5 +1,7 @@
 package org.spath.xml.event;
 
+import java.io.StringReader;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.XMLEvent;
@@ -12,7 +14,7 @@ import org.spath.SpathQuery;
 import org.spath.query.SpathPredicateOperator;
 import org.spath.query.SpathPredicateString;
 import org.spath.query.SpathQueryBuilder;
-import org.spath.query.SpathQueryElement;
+import org.spath.query.SpathQueryException;
 import org.spath.query.SpathQueryStart;
 import org.spath.query.SpathQueryType;
 import org.spath.test.StringReadWriter;
@@ -23,7 +25,7 @@ import com.sun.xml.internal.stream.events.StartElementEvent;
 
 public class SpathXmlEventReaderTest extends TestCase {
     XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
-    SpathXmlEventReaderFactory factory = new SpathXmlEventReaderFactory();
+    SpathXmlEventReaderFactory spathFactory = new SpathXmlEventReaderFactory();
     
     @Test
     public void testXmlEventReader() throws Exception {
@@ -52,7 +54,7 @@ public class SpathXmlEventReaderTest extends TestCase {
         out.close();
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
-        SpathEngine engine = factory.createEngine(reader);
+        SpathEngine engine = spathFactory.createEngine(reader);
         SpathQuery data = new SpathQueryStart("data");
         engine.query(data);
         assertTrue("matchNext()", engine.matchNext());
@@ -66,13 +68,13 @@ public class SpathXmlEventReaderTest extends TestCase {
     @Test
     public void testMixedText() throws Exception {
         StringReadWriter out = new StringReadWriter();
-        out.println("<data>Hello <b>World</b></data>");
+        out.println("<data>Hello <b>World</b> Goodbye</data>");
         out.close();
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
-        SpathEngine engine = factory.createEngine(reader);
-        SpathQuery data = engine.query(new SpathQueryStart("data"));
-        SpathQuery bold = engine.query(new SpathQueryElement(data, "b"));
+        SpathEngine engine = spathFactory.createEngine(reader);
+        SpathQuery data = engine.query("data");
+        SpathQuery bold = engine.query("b");
 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -80,6 +82,10 @@ public class SpathXmlEventReaderTest extends TestCase {
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(bold)", engine.match(bold));
         assertEquals("World", engine.getText());
+        assertTrue("matchNext()", engine.matchNext());
+        assertTrue("match(data)", engine.match(data));
+        assertEquals(" Goodbye", engine.getText());
+        assertEquals(" Goodbye", engine.getText());
         assertFalse("End of input", engine.matchNext());
     }
 
@@ -90,7 +96,7 @@ public class SpathXmlEventReaderTest extends TestCase {
         out.close();
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
-        SpathEngine engine = factory.createEngine(reader);
+        SpathEngine engine = spathFactory.createEngine(reader);
         SpathQueryStart data = new SpathQueryStart("data");
         data.add(new SpathPredicateString("lang", SpathPredicateOperator.EQ, "En"));
         engine.query(data);
@@ -122,7 +128,7 @@ public class SpathXmlEventReaderTest extends TestCase {
         out.close();
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
-        SpathEngine engine = factory.createEngine(reader);
+        SpathEngine engine = spathFactory.createEngine(reader);
         SpathQueryBuilder builder = new SpathQueryBuilder();
         SpathQuery dataPath = engine.query(builder.withType(SpathQueryType.ROOT).withName("data").build());
         SpathQuery namePath = engine.query(builder.withType(SpathQueryType.RELATIVE).withName("name").build());
@@ -148,5 +154,39 @@ public class SpathXmlEventReaderTest extends TestCase {
         assertEquals("John Doe", name);
         assertEquals("1 Erehwon St, Elsewhere", address);
         assertEquals("12.34", price);
+    }
+    
+    @Test
+    public void testNoQueryException() throws Exception {
+        StringReader input = new StringReader("<greeting/>");
+        XMLEventReader reader = xmlFactory.createXMLEventReader(input);
+        SpathEngine engine = spathFactory.createEngine(reader);
+        try {
+            engine.matchNext();
+            engine.matchNext();
+            fail("Should throw SpathQueryException");
+        } catch (SpathQueryException ex) {
+            assertEquals("No queries have been added to the SpathEngine", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testInfiniteLoopException() throws Exception {
+        StringReader input = new StringReader("<data><item/></data>");
+        XMLEventReader reader = xmlFactory.createXMLEventReader(input);
+        SpathEngine engine = spathFactory.createEngine(reader).withNoProgressThreshold(100);
+        try {
+            int count = 0;
+            while (engine.matchNext("/data")) {
+                // the following statement causes an infinite loop new events are not being read.
+                while (engine.match("item")) {
+                    if (++count > 100) {
+                        fail("Infinite loop not detected, count=" + count);
+                    }
+                }
+            }
+        } catch (SpathQueryException ex) {
+            assertEquals("Infinite loop detected. Do not use while (match(query)) ...", ex.getMessage());
+        }
     }
 }

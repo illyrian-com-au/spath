@@ -30,6 +30,7 @@ public class SpathXmlEventReader implements SpathEventSource<StartElement> {
                     return true;
                 } else if (event instanceof EndElement) {
                     engine.pop();
+                    return true;
                 }
             }
             return false;

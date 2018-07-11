@@ -7,6 +7,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
 import org.spath.SpathEvaluator;
+import org.spath.engine.SpathUtil;
 import org.spath.query.SpathPredicateBoolean;
 import org.spath.query.SpathPredicateNumber;
 import org.spath.query.SpathPredicateString;
@@ -46,7 +47,7 @@ public class SpathXmlEventEvaluator implements SpathEvaluator<StartElement> {
             Attribute attr = iter.next();
             String name = attr.getName().toString();
             String value = attr.getValue();
-            BigDecimal decimal = predicate.getValueAsNumber(value);
+            BigDecimal decimal = SpathUtil.getValueAsNumber(value);
             if (decimal != null && predicate.compareTo(name, decimal)) {
                 return true;
             }
@@ -62,7 +63,7 @@ public class SpathXmlEventEvaluator implements SpathEvaluator<StartElement> {
             Attribute attr = iter.next();
             String name = attr.getName().toString();
             String value = attr.getValue();
-            Boolean bool = predicate.getValueAsBoolean(value);
+            Boolean bool = SpathUtil.getValueAsBoolean(value);
             if (predicate.compareTo(name, bool)) {
                 return true;
             }

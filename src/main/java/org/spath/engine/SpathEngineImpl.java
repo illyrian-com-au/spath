@@ -1,5 +1,6 @@
 package org.spath.engine;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,19 +12,50 @@ import org.spath.SpathStack;
 import org.spath.parser.SpathParser;
 import org.spath.query.SpathQueryException;
 
+/**
+ * An engine for applying Spath Expressions to a hierarchical series of events of type T.
+ *
+ * @param <T> an event type read from an input file.
+ */
 public class SpathEngineImpl<T> implements SpathEngine {
+    private static final long NO_PROGRESS_THREASHOLD = 1000000;
+    
     final SpathStack<T> stack;
     final SpathEventSource<T> source;
     final Map<String, SpathQuery> pathMap;
     final SpathParser parser = createSpathParser();
     
     SpathMatch lastMatched = null;
-    boolean firstPass = true;
+    boolean    firstPass = true;
+    long       noProgressThreshold = NO_PROGRESS_THREASHOLD;
+    long       noProgressCount = 0;
     
     public SpathEngineImpl(SpathStack<T> stack, SpathEventSource<T> source) {
         this.stack = stack;
         this.source = source;
         pathMap = new HashMap<String, SpathQuery>();
+    }
+    
+    /**
+     * The threshold to detect an infinite loop.
+     * Sets the maximum number of times match() can be called without progressing through
+     * the input file by calling matchNext(..)
+     * @param count the new no progress threshold
+     * @return the SpathEngine with the no progress threshold set
+     */
+    public SpathEngineImpl<T> withNoProgressThreshold(long count) {
+        noProgressThreshold = count;
+        return this;
+    }
+    
+    /**
+     * The threshold to detect an infinite loop.
+     * The maximum number of times match() can be called without progressing through
+     * the input file by calling matchNext(..)
+     * Defaults to 1,000,000.
+     */
+    public long getNoProgressTreshold() {
+        return noProgressThreshold;
     }
     
     protected SpathParser createSpathParser() {
@@ -69,6 +101,7 @@ public class SpathEngineImpl<T> implements SpathEngine {
     @Override
     public boolean matchNext(SpathQuery query) { 
         lastMatched = null;
+        noProgressCount = 0;
         while (source.nextEvent(stack)) {
             if (query != null && !stack.partial(query)) {
                 break;
@@ -81,14 +114,17 @@ public class SpathEngineImpl<T> implements SpathEngine {
     
     @Override
     public boolean matchNext() {
+        // Allow one pass for queries to be added to the engine
         if (firstPass) {
             firstPass = false;
             if (pathMap.isEmpty()) {
-                source.nextEvent(stack);
-                return true;
+                return source.nextEvent(stack);
             }
+        } else if (pathMap.isEmpty()) {
+            throw new SpathQueryException("No queries have been added to the SpathEngine");
         }
         lastMatched = null;
+        noProgressCount = 0;
         while (source.nextEvent(stack)) {
             if ((lastMatched = findMatch()) != null) {
                 return true;
@@ -99,6 +135,9 @@ public class SpathEngineImpl<T> implements SpathEngine {
     
     @Override
     public boolean match(SpathQuery query) {
+        if (++noProgressCount > noProgressThreshold) {
+            throw new SpathQueryException("Infinite loop detected. Do not use while (match(query)) ...");
+        }
         if (stack.match(query)) {
             lastMatched = query;
             return true;
@@ -117,8 +156,18 @@ public class SpathEngineImpl<T> implements SpathEngine {
     }
     
     @Override
-    public String getText() throws SpathQueryException {
+    public String getText() {
         return source.getText(stack);
+    }
+    
+    @Override
+    public BigDecimal getDecimal() {
+        return SpathUtil.getValueAsNumber(getText());
+    }
+
+    @Override
+    public Boolean getBoolean() {
+        return SpathUtil.getValueAsBoolean(getText());
     }
     
     @Override

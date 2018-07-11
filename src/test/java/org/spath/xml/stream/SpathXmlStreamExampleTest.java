@@ -1,29 +1,27 @@
-package org.spath.xml.event;
+package org.spath.xml.stream;
 
 import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 import java.io.StringReader;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 import org.junit.Test;
 import org.spath.SpathEngine;
 import org.spath.test.StringReadWriter;
-import org.spath.xml.stream.SpathXmlStreamReaderFactory;
+import org.spath.xml.event.SpathXmlEventReaderFactory;
 
-public class SpathXmlEventExampleTest {
+public class SpathXmlStreamExampleTest {
     XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
-    SpathXmlStreamReaderFactory spathFactory = new SpathXmlStreamReaderFactory();
+    SpathXmlEventReaderFactory spathFactory = new SpathXmlEventReaderFactory();
     
     private SpathEngine createSpathEngine(String xml) throws XMLStreamException {
         StringReader input = new StringReader(xml);
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(input);
+        XMLEventReader reader = xmlFactory.createXMLEventReader(input);
         SpathEngine engine = spathFactory.createEngine(reader);
         return engine;
     }
@@ -82,7 +80,7 @@ public class SpathXmlEventExampleTest {
         out.println("</data>");
         out.close();
         
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(out.getLineReader());
+        XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
         SpathEngine engine = spathFactory.createEngine(reader);
         
         ArrayList<Employee> list = new ArrayList<Employee>();
@@ -161,7 +159,7 @@ public class SpathXmlEventExampleTest {
     @Test
     public void testNestedExampleFile() throws Exception {
         InputStream input = ClassLoader.getSystemResourceAsStream("employee.xml");
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(input);
+        XMLEventReader reader = xmlFactory.createXMLEventReader(input);
         SpathEngine engine = spathFactory.createEngine(reader);
         
         ArrayList<Employee> list = new ArrayList<Employee>();
@@ -183,51 +181,5 @@ public class SpathXmlEventExampleTest {
         assertEquals("3099", employee.business.postcode);
         assertEquals("P.O.Box 1234", employee.postal.street);
         assertEquals("3099", employee.postal.postcode);
-    }
-
-    @Test
-    public void testPricesExampleFile() throws Exception {
-        InputStream input = ClassLoader.getSystemResourceAsStream("prices.xml");
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(input);
-        SpathEngine engine = spathFactory.createEngine(reader);
-
-        BigDecimal total = BigDecimal.ZERO;
-        BigDecimal maximum = BigDecimal.ZERO;
-        BigDecimal minimum = new BigDecimal(Long.MAX_VALUE);
-        while (engine.matchNext("/shopping")) {
-            if (engine.match("item/price")) {
-                BigDecimal price = engine.getDecimal();
-                total = total.add(price);
-                maximum = maximum.max(price);
-                minimum = minimum.min(price);
-            }
-        }
-        
-        assertEquals("33.25", total.toPlainString());
-        assertEquals("12.00", maximum.toPlainString());
-        assertEquals("1.00", minimum.toPlainString());
-    }
-
-    @Test
-    public void testCountExampleFile() throws Exception {
-        InputStream input = ClassLoader.getSystemResourceAsStream("prices.xml");
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(input);
-        SpathEngine engine = spathFactory.createEngine(reader);
-
-        int includesGst = 0;
-        int excludesGst = 0;
-        while (engine.matchNext("/shopping")) {
-            if (engine.match("item/gst")) {
-                Boolean gstValue = engine.getBoolean();
-                if (Boolean.TRUE.equals(gstValue)) {
-                    includesGst++;
-                } else {
-                    excludesGst++;
-                }
-            }
-        }
-        
-        assertEquals(4, includesGst);
-        assertEquals(3, excludesGst);
     }
 }

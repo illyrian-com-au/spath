@@ -15,13 +15,13 @@ Node selectors such as "decendent" are not supported.
 
 <table>
 <tr><th> Expression </th><th> Description </th></tr>
-<tr><td>   /person     </td><td> Selects from the root node called person</td></tr>
-<tr><td>   //name      </td><td> Selects any node called name in the document </td></tr>
-<tr><td>   name        </td><td> Selects all node called "name"; same as //name </td></tr>
-<tr><td>   /person/name </td><td> Selects the node called "name" beneath the root node called person </td></tr>
-<tr><td>   //person/name </td><td> Selects the node called "name" beneath any node called person </td></tr>
-<tr><td>   /person//name </td><td> Selects any node called "name" beneath the root node called person </td></tr>
-<tr><td>   //person//name </td><td> Selects any node called "name" beneath any node called person </td></tr>
+<tr><td>   /person     </td><td> Selects the root node called person</td></tr>
+<tr><td>   //name      </td><td> Selects any node called name anywhere in the document </td></tr>
+<tr><td>   name        </td><td> Selects any node called "name" anywhere in the document; same as //name </td></tr>
+<tr><td>   /person/name </td><td> Selects a node called "name" immediately beneath the root node called person </td></tr>
+<tr><td>   //person/name </td><td> Selects a node called "name" immediately beneath a node called person anywhere in the document</td></tr>
+<tr><td>   /person//name </td><td> Selects a node called "name" anywhere beneath the root node called person </td></tr>
+<tr><td>   //person//name </td><td> Selects a node called "name" anywhere beneath a node called person anywhere in the document</td></tr>
 </table>
 
 Note . and .. are not supported.

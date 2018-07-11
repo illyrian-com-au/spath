@@ -3,6 +3,7 @@ package org.spath.event;
 import java.math.BigDecimal;
 
 import org.spath.SpathEvaluator;
+import org.spath.engine.SpathUtil;
 import org.spath.query.SpathPredicateBoolean;
 import org.spath.query.SpathPredicateNumber;
 import org.spath.query.SpathPredicateString;
@@ -36,7 +37,7 @@ public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
     public boolean match(SpathPredicateNumber predicate, SpathEvent event) {
         for (SpathProperty prop : event.getProperties()) {
             String name = prop.getName();
-            BigDecimal value = predicate.getValueAsNumber(prop.getValue());
+            BigDecimal value = SpathUtil.getValueAsNumber(prop.getValue());
             if (predicate.compareTo(name, value)) {
                 return true;
             }
@@ -48,7 +49,7 @@ public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
     public boolean match(SpathPredicateBoolean predicate, SpathEvent event) {
         for (SpathProperty prop : event.getProperties()) {
             String name = prop.getName();
-            Boolean value = predicate.getValueAsBoolean(prop.getValue());
+            Boolean value = SpathUtil.getValueAsBoolean(prop.getValue());
             if (predicate.compareTo(name, value)) {
                 return true;
             }
