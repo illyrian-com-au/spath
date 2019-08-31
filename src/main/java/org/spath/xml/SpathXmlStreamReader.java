@@ -1,10 +1,9 @@
-package org.spath.xml.stream;
+package org.spath.xml;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.StartElement;
 
 import org.spath.SpathEventSource;
 import org.spath.SpathStack;
@@ -27,16 +26,7 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
             while (reader.hasNext()) {
                 int event = nextEvent();
                 if (event == XMLStreamReader.START_ELEMENT) {
-                    SpathEventBuilder builder = new SpathEventBuilder();
-                    QName qname = reader.getName();
-                    builder.withName(qname.toString());
-                    int size = reader.getAttributeCount();
-                    for (int index=0; index<size; index++) {
-                        String name = reader.getAttributeLocalName(index);
-                        String value = reader.getAttributeValue(index);
-                        builder.withProperty(name, value);
-                    }
-                    engine.push(builder.build());
+                    engine.push(createStartEvent());
                     return true;
                 } else if (event == XMLStreamReader.END_ELEMENT) {
                     engine.pop();
@@ -47,6 +37,19 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
         } catch (Exception ex) {
             throw new SpathQueryException("Could not read nextEvent", ex);
         }
+    }
+    
+    private SpathEvent createStartEvent() {
+        SpathEventBuilder builder = new SpathEventBuilder();
+        QName qname = reader.getName();
+        builder.withName(qname.toString());
+        int size = reader.getAttributeCount();
+        for (int index=0; index<size; index++) {
+            String name = reader.getAttributeLocalName(index);
+            String value = reader.getAttributeValue(index);
+            builder.withProperty(name, value);
+        }
+        return builder.build();
     }
     
     @Override

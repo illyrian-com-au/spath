@@ -5,11 +5,11 @@ import java.math.BigDecimal;
 import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.spath.SpathEngine;
+import org.spath.SpathStreamEngine;
 import org.spath.SpathEvaluator;
 import org.spath.SpathQuery;
 import org.spath.SpathStack;
-import org.spath.engine.SpathEngineImpl;
+import org.spath.engine.SpathStreamEngineImpl;
 import org.spath.engine.SpathStackImpl;
 import org.spath.query.SpathPredicateOperator;
 import org.spath.query.SpathQueryBuilder;
@@ -20,10 +20,10 @@ public class SpathEventEvaluatorTest extends TestCase {
     SpathQueryBuilder spath = new SpathQueryBuilder();
     SpathEvaluator<SpathEvent> matcher = new SpathEventEvaluator();
     
-    SpathEngine createEngine(SpathEvent [] list) {
+    SpathStreamEngine createEngine(SpathEvent [] list) {
         SpathEventTestSource<SpathEvent> source = new SpathEventTestSource<SpathEvent>(list);
         SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(matcher);
-        SpathEngine engine = new SpathEngineImpl<SpathEvent>(stack, source);
+        SpathStreamEngine engine = new SpathStreamEngineImpl<SpathEvent>(stack, source);
         return engine;
     }
     
@@ -33,9 +33,9 @@ public class SpathEventEvaluatorTest extends TestCase {
                 builder.withName("data").withText("Hello World").build(),
                 null
         };
-        SpathEngine engine = createEngine(list);
+        SpathStreamEngine engine = createEngine(list);
         SpathQuery data = spath.withName("data").build();
-        engine.query(data);
+        engine.add(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
         assertEquals("Hello World", engine.getText());
@@ -53,12 +53,12 @@ public class SpathEventEvaluatorTest extends TestCase {
                 builder.withName("data").withProperty("currency", "USD").build(),
                 null,
         };
-        SpathEngine engine = createEngine(list);
+        SpathStreamEngine engine = createEngine(list);
         SpathQuery data = spath.withName("data").build();
         SpathQuery usd = spath.withName("data")
                 .withPredicate("currency", SpathPredicateOperator.EQ, "USD")
                 .build();
-        engine.query(data);
+        engine.add(data);
         // /data(currency="AUD") 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -78,13 +78,13 @@ public class SpathEventEvaluatorTest extends TestCase {
                 builder.withName("data").withProperty("amount", new BigDecimal("10.25")).build(),
                 null,
         };
-        SpathEngine engine = createEngine(list);
+        SpathStreamEngine engine = createEngine(list);
         SpathQuery data = spath.withName("data").build();
         SpathQuery usd = spath.withName("data")
                 .withPredicate("amount", SpathPredicateOperator.LE, new BigDecimal("10.25"))
                 .build();
-        engine.query(usd);
-        engine.query(data);
+        engine.add(usd);
+        engine.add(data);
         // /data(amount=12.50) 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -104,13 +104,13 @@ public class SpathEventEvaluatorTest extends TestCase {
                 builder.withName("data").withProperty("amount", new BigDecimal("10.25")).build(),
                 null,
         };
-        SpathEngine engine = createEngine(list);
+        SpathStreamEngine engine = createEngine(list);
         SpathQuery data = spath.withName("data").build();
         SpathQuery usd = spath.withName("data")
                 .withPredicate("amount", SpathPredicateOperator.LE, new BigDecimal("10.25"))
                 .build();
-        engine.query(usd);
-        engine.query(data);
+        engine.add(usd);
+        engine.add(data);
         // /data(amount=12.50) 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -130,13 +130,13 @@ public class SpathEventEvaluatorTest extends TestCase {
                 builder.withName("data").withProperty("paid", Boolean.TRUE).build(),
                 null,
         };
-        SpathEngine engine = createEngine(list);
+        SpathStreamEngine engine = createEngine(list);
         SpathQuery data = spath.withName("data").build();
         SpathQuery paid = spath.withName("data")
                 .withPredicate("paid", SpathPredicateOperator.EQ, new Boolean(true))
                 .build();
-        engine.query(paid);
-        engine.query(data);
+        engine.add(paid);
+        engine.add(data);
         // /data(paid=true) 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -156,13 +156,13 @@ public class SpathEventEvaluatorTest extends TestCase {
                 builder.withName("data").withProperty("paid", "true").build(),
                 null,
         };
-        SpathEngine engine = createEngine(list);
+        SpathStreamEngine engine = createEngine(list);
         SpathQuery data = spath.withName("data").build();
         SpathQuery paid = spath.withName("data")
                 .withPredicate("paid", SpathPredicateOperator.EQ, new Boolean(true))
                 .build();
-        engine.query(paid);
-        engine.query(data);
+        engine.add(paid);
+        engine.add(data);
         // /data(paid=true) 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));

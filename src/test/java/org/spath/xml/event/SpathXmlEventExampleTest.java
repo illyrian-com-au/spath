@@ -5,32 +5,23 @@ import static org.junit.Assert.assertEquals;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.junit.Test;
-import org.spath.SpathEngine;
+import org.spath.SpathStreamEngine;
 import org.spath.test.StringReadWriter;
-import org.spath.xml.stream.SpathXmlStreamReaderFactory;
+import org.spath.xml.SpathXmlReaderFactory;
 
 public class SpathXmlEventExampleTest {
-    XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
-    SpathXmlStreamReaderFactory spathFactory = new SpathXmlStreamReaderFactory();
-    
-    private SpathEngine createSpathEngine(String xml) throws XMLStreamException {
-        StringReader input = new StringReader(xml);
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(input);
-        SpathEngine engine = spathFactory.createEngine(reader);
-        return engine;
-    }
 
     @Test
     public void testSimpleElement() throws Exception {
-        SpathEngine engine = createSpathEngine("<greeting>Hello World</greeting>");
+        StringReader input = new StringReader("<greeting>Hello World</greeting>");
+        XMLStreamReader reader = XMLInputFactory.newFactory().createXMLStreamReader(input);
+        SpathStreamEngine engine = new SpathXmlReaderFactory().createEngine(reader);
         String text = null;
         while (engine.matchNext()) {
             if (engine.match("/greeting")) {
@@ -42,7 +33,9 @@ public class SpathXmlEventExampleTest {
 
     @Test
     public void testNextDataElement() throws Exception {
-        SpathEngine engine = createSpathEngine("<greeting>Hello <b>World</b> Goodbye</greeting>");
+        StringReader input = new StringReader("<greeting>Hello <b>World</b> Goodbye</greeting>");
+        XMLStreamReader reader = XMLInputFactory.newFactory().createXMLStreamReader(input);
+        SpathStreamEngine engine = new SpathXmlReaderFactory().createEngine(reader);
         String text = "";
         while (engine.matchNext("/greeting")) {
             if (engine.match("//b")) {
@@ -82,8 +75,8 @@ public class SpathXmlEventExampleTest {
         out.println("</data>");
         out.close();
         
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(out.getLineReader());
-        SpathEngine engine = spathFactory.createEngine(reader);
+        XMLStreamReader reader = XMLInputFactory.newFactory().createXMLStreamReader(out.getLineReader());
+        SpathStreamEngine engine = new SpathXmlReaderFactory().createEngine(reader);
         
         ArrayList<Employee> list = new ArrayList<Employee>();
         while (engine.matchNext("/data")) {
@@ -120,7 +113,7 @@ public class SpathXmlEventExampleTest {
         Address postal = null;
     }
     
-    Address getAddress(SpathEngine engine) {
+    Address getAddress(SpathStreamEngine engine) {
         Address address = new Address();
         while (engine.matchNext("address")) {
             if (engine.match("street")) {
@@ -139,7 +132,7 @@ public class SpathXmlEventExampleTest {
         return address;
     }
     
-    Employee getEmployee(SpathEngine engine) {
+    Employee getEmployee(SpathStreamEngine engine) {
         Employee employee = new Employee();
         while (engine.matchNext("employee")) {
             if (engine.match("name")) {
@@ -161,8 +154,8 @@ public class SpathXmlEventExampleTest {
     @Test
     public void testNestedExampleFile() throws Exception {
         InputStream input = ClassLoader.getSystemResourceAsStream("employee.xml");
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(input);
-        SpathEngine engine = spathFactory.createEngine(reader);
+        XMLStreamReader reader = XMLInputFactory.newFactory().createXMLStreamReader(input);
+        SpathStreamEngine engine = new SpathXmlReaderFactory().createEngine(reader);
         
         ArrayList<Employee> list = new ArrayList<Employee>();
         while (engine.matchNext("/data")) {
@@ -188,8 +181,8 @@ public class SpathXmlEventExampleTest {
     @Test
     public void testPricesExampleFile() throws Exception {
         InputStream input = ClassLoader.getSystemResourceAsStream("prices.xml");
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(input);
-        SpathEngine engine = spathFactory.createEngine(reader);
+        XMLStreamReader reader = XMLInputFactory.newFactory().createXMLStreamReader(input);
+        SpathStreamEngine engine = new SpathXmlReaderFactory().createEngine(reader);
 
         BigDecimal total = BigDecimal.ZERO;
         BigDecimal maximum = BigDecimal.ZERO;
@@ -211,8 +204,8 @@ public class SpathXmlEventExampleTest {
     @Test
     public void testCountExampleFile() throws Exception {
         InputStream input = ClassLoader.getSystemResourceAsStream("prices.xml");
-        XMLStreamReader reader = xmlFactory.createXMLStreamReader(input);
-        SpathEngine engine = spathFactory.createEngine(reader);
+        XMLStreamReader reader = XMLInputFactory.newFactory().createXMLStreamReader(input);
+        SpathStreamEngine engine = new SpathXmlReaderFactory().createEngine(reader);
 
         int includesGst = 0;
         int excludesGst = 0;

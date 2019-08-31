@@ -4,9 +4,6 @@ import org.spath.SpathEvaluator;
 import org.spath.SpathPredicate;
 
 public class SpathPredicateBoolean implements SpathPredicate {
-    private static final String TRUE = "true";
-    private static final String FALSE = "false";
-
     private final String name;
     private final SpathPredicateOperator operator;
     private final Boolean value;

@@ -6,12 +6,12 @@ import javax.xml.stream.events.StartElement;
 import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.spath.engine.SpathEngineImpl;
+import org.spath.engine.SpathStreamEngineImpl;
 import org.spath.engine.SpathStackImpl;
 import org.spath.query.SpathQueryException;
 import org.spath.query.SpathQueryElement;
 import org.spath.query.SpathQueryStart;
-import org.spath.xml.event.SpathXmlEventEvaluator;
+import org.spath.xml.SpathXmlEventEvaluator;
 
 public class SpathStackTest extends TestCase {
     
@@ -61,7 +61,7 @@ public class SpathStackTest extends TestCase {
 
     SpathStack<StartElement> spath = new SpathStackImpl<StartElement>(matcher);
     EventSourceStartElement eventSource = new EventSourceStartElement();
-    SpathEngine engine = new SpathEngineImpl<StartElement>(spath, eventSource);
+    SpathStreamEngine engine = new SpathStreamEngineImpl<StartElement>(spath, eventSource);
     
     @Test
     public void testSimpleStartElement() {
@@ -115,16 +115,16 @@ public class SpathStackTest extends TestCase {
     
     @Test
     public void testStreamStackEngine() throws SpathQueryException {
-        String [] emptyList = new String [] {"GWML", "header", "address", null, null, "trade", "details", null, null, null};
-        eventSource.setList(emptyList);
+        String [] eventList = new String [] {"GWML", "header", "address", null, null, "trade", "details", null, null, null};
+        eventSource.setList(eventList);
         SpathStack<StartElement> stack = new SpathStackImpl<StartElement>(matcher);
 
-        SpathEngine engine = new SpathEngineImpl<StartElement>(stack, eventSource);
-        SpathQuery gwml = engine.query(new SpathQueryStart("GWML"));
-        SpathQuery header = engine.query(new SpathQueryElement(gwml, "header"));
-        SpathQuery address = engine.query(new SpathQueryElement(header, "address"));
-        SpathQuery trade = engine.query(new SpathQueryElement(gwml, "trade"));
-        SpathQuery details = engine.query(new SpathQueryElement(trade, "details"));
+        SpathStreamEngine engine = new SpathStreamEngineImpl<StartElement>(stack, eventSource);
+        SpathQuery gwml = engine.add(new SpathQueryStart("GWML"));
+        SpathQuery header = engine.add(new SpathQueryElement(gwml, "header"));
+        SpathQuery address = engine.add(new SpathQueryElement(header, "address"));
+        SpathQuery trade = engine.add(new SpathQueryElement(gwml, "trade"));
+        SpathQuery details = engine.add(new SpathQueryElement(trade, "details"));
         
         assertTrue("GWML", engine.matchNext());
         assertTrue("Match: " + gwml, engine.match(gwml));
@@ -149,16 +149,16 @@ public class SpathStackTest extends TestCase {
     
     @Test
     public void testStreamStackEngineUsage() throws SpathQueryException {
-        String [] emptyList = new String [] {"GWML", "header", "address", null, null, "trade", "details", null, null, null};
-        eventSource.setList(emptyList);
+        String [] eventList = new String [] {"GWML", "header", "address", null, null, "trade", "details", null, null, null};
+        eventSource.setList(eventList);
         SpathStack<StartElement> stack = new SpathStackImpl<StartElement>(matcher);
 
-        SpathEngine engine = new SpathEngineImpl<StartElement>(stack, eventSource);
-        SpathQuery gwml = engine.query(new SpathQueryStart("GWML"));
-        SpathQuery header = engine.query(new SpathQueryElement(gwml, "header"));
-        SpathQuery address = engine.query(new SpathQueryElement(header, "address"));
-        SpathQuery trade = engine.query(new SpathQueryElement(gwml, "trade"));
-        SpathQuery details = engine.query(new SpathQueryElement(trade, "details"));
+        SpathStreamEngine engine = new SpathStreamEngineImpl<StartElement>(stack, eventSource);
+        SpathQuery gwml = engine.add(new SpathQueryStart("GWML"));
+        SpathQuery header = engine.add(new SpathQueryElement(gwml, "header"));
+        SpathQuery address = engine.add(new SpathQueryElement(header, "address"));
+        SpathQuery trade = engine.add(new SpathQueryElement(gwml, "trade"));
+        SpathQuery details = engine.add(new SpathQueryElement(trade, "details"));
         
         boolean hasAddress = false;
         boolean hasDetails = false;

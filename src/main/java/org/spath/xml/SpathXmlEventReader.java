@@ -1,4 +1,4 @@
-package org.spath.xml.event;
+package org.spath.xml;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
