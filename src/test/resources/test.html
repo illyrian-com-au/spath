@@ -1,0 +1,39 @@
+<html>
+  <header>
+    <style type="text/css">
+      body {font-family: monospace}
+      #indent {
+        position:relative;
+        left:20px
+      }
+    </style>
+    <script>
+      function changeHash() {
+         var value=location.hash;
+         console.log("changeHash: " + value);
+         if (value.length > 1) {
+           var elem = document.getElementById(value.substr(1));
+           elem.style.fontSize='35px';
+         }
+         return true;
+      }
+      window.onhashchange = changeHash;
+      window.onload = changeHash;
+    </script>
+  </header>
+  <body>
+    <table>
+    <tr><td><a href="#hello">Hello World</a></td></tr>
+    <tr><td><a href="#goodbye">Goodbye World</a></td></tr>
+    </td></tr>
+    </table>
+    body
+    <div id="indent">
+      data
+      <div id="indent"><a id="hello">Hello World</a></div>
+      <div id="indent"><a id="goodbye">Goodbye</a></div>
+      /data
+    </div>
+    /body
+  </body>
+</html>

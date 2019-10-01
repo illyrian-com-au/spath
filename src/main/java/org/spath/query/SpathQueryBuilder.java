@@ -1,15 +1,17 @@
 package org.spath.query;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.spath.SpathMatch;
 import org.spath.SpathQuery;
 
 public class SpathQueryBuilder {
     private SpathQuery parent = null;
-    private String name = null;
+    private SpathName name = null;
     private SpathQueryType type = SpathQueryType.RELATIVE;
-    private SpathMatch predicate = null;
+    private SpathMatch predicate;
     
     public SpathQueryBuilder(){
     }
@@ -30,14 +32,38 @@ public class SpathQueryBuilder {
         this.parent = parent;
     }
     
-    public SpathQueryBuilder withName(String name) {
+    public SpathQueryBuilder root() {
+        withType(SpathQueryType.ROOT);
+        return this;
+    }
+    
+    public SpathQueryBuilder relative() {
+        withType(SpathQueryType.RELATIVE);
+        return this;
+    }
+    
+    public SpathQueryBuilder withElement(SpathName name) {
         this.name = name;
         return this;
     }
     
+    public SpathQueryBuilder withName(String name) {
+        if (SpathAnyName.STAR.equals(name)) {
+            return withStar();
+        }
+        return withElement(new SpathName(name));
+    }
+    
+    public SpathQueryBuilder withName(String qualifier, String name) {
+        return withElement(new SpathQualifiedName(qualifier, name));
+    }
+    
     public SpathQueryBuilder withStar() {
-        this.name = SpathQueryElement.STAR;
-        return this;
+        return withElement(new SpathAnyName());
+    }
+    
+    public SpathQueryBuilder withFunction(String name) {
+        return withElement(new SpathFunction(name));
     }
     
     public SpathQueryBuilder withType(SpathQueryType type) {
@@ -45,29 +71,38 @@ public class SpathQueryBuilder {
         return this;
     }
     
-    public SpathQueryBuilder withPredicate(SpathMatch predicate) {
-        this.predicate = predicate;
+    public SpathQueryBuilder andPredicate(SpathMatch otherPredicate) {
+        if (this.predicate != null) {
+            this.predicate = new SpathPredicateAnd(this.predicate, otherPredicate);
+        } else {
+            this.predicate = otherPredicate;
+        }
         return this;
+    }
+    
+    public SpathQueryBuilder orPredicate(SpathMatch otherPredicate) {
+        this.predicate = new SpathPredicateOr(this.predicate, otherPredicate);
+        return this;
+    }
+    
+    public SpathQueryBuilder withPredicate(SpathMatch predicate) {
+        return andPredicate(predicate);
     }
     
     public SpathQueryBuilder withPredicate(String name) {
-        this.predicate = new SpathPredicateString(name);
-        return this;
+        return andPredicate(new SpathPredicateString(name));
     }
     
     public SpathQueryBuilder withPredicate(String name, SpathPredicateOperator operator, String value) {
-        this.predicate = new SpathPredicateString(name, operator, value);
-        return this;
+        return andPredicate(new SpathPredicateString(name, operator, value));
     }
     
     public SpathQueryBuilder withPredicate(String name, SpathPredicateOperator operator, BigDecimal value) {
-        this.predicate = new SpathPredicateNumber(name, operator, value);
-        return this;
+        return andPredicate(new SpathPredicateNumber(name, operator, value));
     }
     
     public SpathQueryBuilder withPredicate(String name, SpathPredicateOperator operator, Boolean value) {
-        this.predicate = new SpathPredicateBoolean(name, operator, value);
-        return this;
+        return andPredicate(new SpathPredicateBoolean(name, operator, value));
     }
     
     public SpathQueryBuilder next() {
@@ -78,11 +113,12 @@ public class SpathQueryBuilder {
     void reset() {
         parent = null;
         name = null;
-        type = SpathQueryType.ELEMENT;
+        type = SpathQueryType.RELATIVE;
         predicate = null;
     }
     
     public SpathQuery build() {
+        // FIXME name.isTerminal()
         SpathQueryElement element = null;
         if (parent == null) { 
             if (SpathQueryType.RELATIVE == type) {
@@ -94,11 +130,12 @@ public class SpathQueryBuilder {
             }
         } else if (SpathQueryType.RELATIVE == type) {
             element = new SpathQueryRelative(parent, name, predicate);
+        } else if (name.isTerminal()) {
+            element = new SpathQueryTerminal(parent, name);
         } else {
             element = new SpathQueryElement(parent, name, predicate);
         }
         reset();
-        type = SpathQueryType.RELATIVE;
         return element;
     }
     

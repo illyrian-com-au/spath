@@ -13,18 +13,20 @@ import org.spath.query.SpathQueryException;
 
 public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
     private final XMLStreamReader reader;
+    private final SpathStack<SpathEvent> engine;
     
     private String text = null;
     
-    public SpathXmlStreamReader(XMLStreamReader reader) {
+    public SpathXmlStreamReader(XMLStreamReader reader, SpathStack<SpathEvent> engine) {
         this.reader = reader;
+        this.engine = engine;
     }
     
     @Override
-    public boolean nextEvent(SpathStack<SpathEvent> engine) throws SpathQueryException {
+    public boolean nextEvent() throws SpathQueryException {
         try {
             while (reader.hasNext()) {
-                int event = nextEvent();
+                int event = readNextEvent();
                 if (event == XMLStreamReader.START_ELEMENT) {
                     engine.push(createStartEvent());
                     return true;
@@ -53,7 +55,7 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
     }
     
     @Override
-    public String getText(SpathStack<SpathEvent> engine) throws SpathQueryException {
+    public String getText() throws SpathQueryException {
         try {
             if (text != null) {
                 return text;
@@ -70,7 +72,7 @@ public class SpathXmlStreamReader implements SpathEventSource<SpathEvent> {
         }
     }
     
-    private int nextEvent() throws XMLStreamException {
+    private int readNextEvent() throws XMLStreamException {
         int event;
         if (text != null) {
             // Return the event that terminated the text

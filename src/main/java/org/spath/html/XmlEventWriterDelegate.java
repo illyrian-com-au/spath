@@ -16,12 +16,18 @@ public abstract class XmlEventWriterDelegate implements XMLEventWriter {
     private final XMLEventWriter delegate;
     private final XMLEventFactory factory = XMLEventFactory.newFactory();
     private final Characters NULL_CHARS = factory.createCharacters("");
+    private final boolean flushStartElement;
     
-    public XmlEventWriterDelegate(XMLEventWriter delegate) {
+    public XmlEventWriterDelegate(XMLEventWriter delegate, boolean flushStartElement) {
+        this.flushStartElement = flushStartElement;
         this.delegate = delegate;
         if (delegate == null) {
             throw new IllegalStateException("XMLEventWriter delegate cannot be null");
         }
+    }
+
+    public XmlEventWriterDelegate(XMLEventWriter delegate) {
+        this(delegate, true);
     }
 
     public XMLEventWriter getDelegate() {
@@ -65,7 +71,9 @@ public abstract class XmlEventWriterDelegate implements XMLEventWriter {
     
     public void apply(StartElement event) throws XMLStreamException {
         delegate.add(event);
-        flushStartElement();
+        if (isFlushStartElement()) {
+            flushStartElement();
+        }
     }
     
     public void apply(EndElement event) throws XMLStreamException {
@@ -111,6 +119,10 @@ public abstract class XmlEventWriterDelegate implements XMLEventWriter {
 
     private void flushStartElement() throws XMLStreamException {
         delegate.add(NULL_CHARS);
+    }
+
+    public boolean isFlushStartElement() {
+        return flushStartElement;
     }
 
 }

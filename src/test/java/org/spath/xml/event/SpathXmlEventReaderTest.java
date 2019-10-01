@@ -9,10 +9,10 @@ import javax.xml.stream.events.XMLEvent;
 import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.spath.SpathStreamEngine;
 import org.spath.SpathQuery;
+import org.spath.SpathStreamEngine;
+import org.spath.query.SpathName;
 import org.spath.query.SpathPredicateOperator;
-import org.spath.query.SpathPredicateString;
 import org.spath.query.SpathQueryBuilder;
 import org.spath.query.SpathQueryException;
 import org.spath.query.SpathQueryStart;
@@ -27,6 +27,7 @@ import com.sun.xml.internal.stream.events.StartElementEvent;
 public class SpathXmlEventReaderTest extends TestCase {
     XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
     SpathXmlReaderFactory spathFactory = new SpathXmlReaderFactory();
+    SpathQueryBuilder builder = new SpathQueryBuilder();
     
     @Test
     public void testXmlEventReader() throws Exception {
@@ -56,7 +57,7 @@ public class SpathXmlEventReaderTest extends TestCase {
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
         SpathStreamEngine engine = spathFactory.createEngine(reader);
-        SpathQuery data = new SpathQueryStart("data");
+        SpathQuery data = new SpathQueryStart(new SpathName("data"));
         engine.add(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -89,7 +90,31 @@ public class SpathXmlEventReaderTest extends TestCase {
         assertEquals(" Goodbye", engine.getText());
         assertFalse("End of input", engine.matchNext());
     }
+/* FIXME
+    @Test
+    public void testTextFunction() throws Exception {
+        StringReadWriter out = new StringReadWriter();
+        out.println("<data>Hello <b>World</b> Goodbye</data>");
+        out.close();
+        
+        XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
+        SpathStreamEngine engine = spathFactory.createEngine(reader);
+        SpathQuery data = engine.add("data/text()");
+        SpathQuery bold = engine.add("b/text()");
 
+        assertTrue("matchNext()", engine.matchNext());
+        assertTrue("match(data)", engine.match(data));
+        assertEquals("Hello ", engine.getText());
+        assertTrue("matchNext()", engine.matchNext());
+        assertTrue("match(bold)", engine.match(bold));
+        assertEquals("World", engine.getText());
+        assertTrue("matchNext()", engine.matchNext());
+        assertTrue("match(data)", engine.match(data));
+        assertEquals(" Goodbye", engine.getText());
+        assertEquals(" Goodbye", engine.getText());
+        assertFalse("End of input", engine.matchNext());
+    }
+*/
     @Test
     public void testSimpleAttribute() throws Exception {
         StringReadWriter out = new StringReadWriter();
@@ -98,8 +123,9 @@ public class SpathXmlEventReaderTest extends TestCase {
         
         XMLEventReader reader = xmlFactory.createXMLEventReader(out.getLineReader());
         SpathStreamEngine engine = spathFactory.createEngine(reader);
-        SpathQueryStart data = new SpathQueryStart("data");
-        data.add(new SpathPredicateString("lang", SpathPredicateOperator.EQ, "En"));
+        SpathQuery data = builder.root().withName("data")
+                .withPredicate("lang", SpathPredicateOperator.EQ, "En")
+                .build();
         engine.add(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));

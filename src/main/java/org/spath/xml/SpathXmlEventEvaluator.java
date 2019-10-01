@@ -8,6 +8,8 @@ import javax.xml.stream.events.StartElement;
 
 import org.spath.SpathEvaluator;
 import org.spath.engine.SpathUtil;
+import org.spath.query.SpathFunction;
+import org.spath.query.SpathName;
 import org.spath.query.SpathPredicateBoolean;
 import org.spath.query.SpathPredicateNumber;
 import org.spath.query.SpathPredicateString;
@@ -19,7 +21,7 @@ public class SpathXmlEventEvaluator implements SpathEvaluator<StartElement> {
     
     @Override
     public boolean match(SpathQueryElement target, StartElement event) {
-        String targetValue = target.getName();
+        String targetValue = target.getSpathName().getName();
         String eventValue = event.getName().toString();
         return targetValue.equals(eventValue);
     }
@@ -69,5 +71,25 @@ public class SpathXmlEventEvaluator implements SpathEvaluator<StartElement> {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean match(SpathName target, StartElement event) {
+        String targetValue = target.getName();
+        String eventValue = event.getName().getLocalPart();
+        return targetValue.equals(eventValue);
+    }
+
+    @Override
+    public boolean match(SpathFunction target, StartElement event) {
+        String targetValue = target.getName();
+        if ("text()".equals(targetValue)) {
+            return getText() != null; // FIXME
+        }
+        return false;
+    }
+    
+    public String getText() {
+        return null;
     }
 }

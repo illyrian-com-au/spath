@@ -15,6 +15,17 @@ public class SpathStackImpl<T> implements SpathStack<T> {
         this.evaluator = matcher;
     }
     
+    public SpathStackImpl() {
+    }
+    
+    public void setSpathEvaluator(SpathEvaluator<T> matcher) {
+        this.evaluator = matcher;
+    }
+    
+    public SpathEvaluator<T> setSpathEvaluator() {
+        return evaluator;
+    }
+    
     @Override
     public boolean match(SpathQuery target) {
         return matchTarget(target, stack.size() - 1);

@@ -9,6 +9,8 @@ import org.spath.engine.SpathStackImpl;
 import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventBuilder;
 import org.spath.event.SpathEventEvaluator;
+import org.spath.query.SpathAnyName;
+import org.spath.query.SpathName;
 import org.spath.query.SpathQueryBuilder;
 import org.spath.query.SpathQueryRelative;
 import org.spath.query.SpathQueryStart;
@@ -178,106 +180,99 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testMultiPredicateEquals() {
-        SpathQueryStart amount = new SpathQueryStart("amount");
-        SpathPredicate type = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
-        SpathPredicate currency = new SpathPredicateString("currency", SpathPredicateOperator.EQ, "USD");
-        amount.add(type);
-        amount.add(currency);
+        SpathQuery amount = builder.root().withName("amount")
+                .withPredicate("type", SpathPredicateOperator.EQ, "decimal")
+                .withPredicate("currency", SpathPredicateOperator.EQ, "USD")
+                .build();
         assertEquals("/amount[@type='decimal' and @currency='USD']", amount.toString());
 
         assertFalse("Should not match " + amount, stack.match(amount));
         stack.push(toEvent("amount(currency='USD', type='decimal')"));
-        assertTrue("Should match " + type, stack.match(amount));
+        assertTrue("Should match [@type='decimal']", stack.match(amount));
         stack.pop();
         assertFalse("Should not match " + amount, stack.match(amount));
     }
 
     @Test
     public void testMultiPredicateMissmatch() {
-        SpathQueryStart amount = new SpathQueryStart("amount");
-        SpathPredicate type = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
-        SpathPredicate currency = new SpathPredicateString("currency", SpathPredicateOperator.EQ, "AUD");
-        amount.add(type);
-        amount.add(currency);
+        SpathQuery amount = builder.root().withName("amount")
+                .withPredicate("type", SpathPredicateOperator.EQ, "decimal")
+                .withPredicate("currency", SpathPredicateOperator.EQ, "AUD")
+                .build();
         assertEquals("/amount[@type='decimal' and @currency='AUD']", amount.toString());
 
         assertFalse("Should not match " + amount, stack.match(amount));
         stack.push(toEvent("amount(currency='USD', type='decimal')"));
-        assertFalse("Should not match " + type, stack.match(amount));
+        assertFalse("Should not match amount(currency='USD', type='decimal')", stack.match(amount));
         stack.pop();
-        assertFalse("Should not match " + amount, stack.match(amount));
+        assertFalse("Should not match amount(currency='USD', type='decimal')" + amount, stack.match(amount));
     }
 
     @Test
     public void testAttributeExists() {
-        SpathQueryStart element = new SpathQueryStart("amount");
-        SpathPredicate attr = new SpathPredicateString("type", null, null);
-        element.add(attr);
+        SpathQuery element = builder.root().withName("amount")
+                .withPredicate("type").build();
         assertEquals("/amount[@type]", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
         stack.push(toEvent("amount(type='decimal')"));
-        assertTrue("Should match " + attr, stack.match(element));
+        assertTrue("Should match /amount[@type]", stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
     }
 
     @Test
     public void testMultiAttributeExists() {
-        SpathQueryStart element = new SpathQueryStart("amount");
-        SpathPredicate attr = new SpathPredicateString("type", null, null);
-        element.add(attr);
+        SpathQuery element = builder.root().withName("amount")
+                .withPredicate("type").build();
         assertEquals("/amount[@type]", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
         stack.push(toEvent("amount(currency='USD', type='decimal')"));
-        assertTrue("Should match " + attr, stack.match(element));
+        assertTrue("Should match /amount[@type]", stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
     }
 
     @Test
     public void testSimpleMismatch() {
-        SpathQueryStart element = new SpathQueryStart("amount");
-        SpathPredicate attr = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
-        element.add(attr);
+        SpathQuery element = builder.root().withName("amount")
+                .withPredicate("type", SpathPredicateOperator.EQ, "decimal").build();
         assertEquals("/amount[@type='decimal']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
         stack.push(toEvent("amount(type='numeric')"));
-        assertFalse("Should not match " + attr, stack.match(element));
+        assertFalse("Should not match /amount[@type='decimal']", stack.match(element));
         stack.pop();
-        assertFalse("Should not match " + element, stack.match(element));
+        assertFalse("Should not match empty stack", stack.match(element));
     }
 
     @Test
     public void testStarAttributeEquals() {
-        SpathQueryStart element = new SpathQueryStart();
-        SpathPredicate attr = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
-        element.add(attr);
+        SpathQuery element = builder.root().withStar()
+                .withPredicate("type", SpathPredicateOperator.EQ, "decimal").build();
         assertEquals("/*[@type='decimal']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
         stack.push(toEvent("amount(type='decimal')"));
-        assertTrue("Should match " + attr, stack.match(element));
+        assertTrue("Should match /*[@type='decimal']", stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
     }
 
     @Test
     public void testStarAttributeNotEquals() {
-        SpathQueryStart element = new SpathQueryStart();
-        SpathPredicate attr = new SpathPredicateString("type", SpathPredicateOperator.NE, "decimal");
-        element.add(attr);
+        SpathQuery element = builder.root().withStar()
+                .withPredicate("type", SpathPredicateOperator.NE, "decimal").build();
         assertEquals("/*[@type!='decimal']", element.toString());
 
         assertFalse("Should not match " + element, stack.match(element));
         stack.push(toEvent("amount(type='other')"));
-        assertTrue("Should match " + attr, stack.match(element));
+        assertTrue("Should match /*[@type!='decimal']", stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
         stack.push(toEvent("amount(type='decimal')"));
-        assertFalse("Should match " + attr, stack.match(element));
+        assertFalse("Should match /*[@type!='decimal']", stack.match(element));
         stack.pop();
         assertFalse("Should not match " + element, stack.match(element));
     }
@@ -448,7 +443,7 @@ public class SpathPredicateTest extends TestCase {
 
     @Test
     public void testRelativeStarAttributeEquals() {
-        SpathQueryRelative element = new SpathQueryRelative();
+        SpathQueryRelative element = new SpathQueryRelative(new SpathAnyName());
         SpathPredicate attr = new SpathPredicateString("type", SpathPredicateOperator.EQ, "decimal");
         element.add(attr);
         assertEquals("//*[@type='decimal']", element.toString());
@@ -465,7 +460,7 @@ public class SpathPredicateTest extends TestCase {
     @Test
     public void testInvalidCharacters() {
         try {
-            new SpathQueryStart("/data");
+            new SpathName("/data");
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
             assertEquals("Invalid character : '/' in SpathQuery: /data", ex.getMessage());

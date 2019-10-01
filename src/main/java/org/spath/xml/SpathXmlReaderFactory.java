@@ -15,14 +15,14 @@ public class SpathXmlReaderFactory {
     public SpathStreamEngineImpl<SpathEvent> createEngine(XMLStreamReader reader) {
         SpathEventEvaluator evaluator = new SpathEventEvaluator();
         SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(evaluator);
-        SpathXmlStreamReader stream = new SpathXmlStreamReader(reader);
+        SpathXmlStreamReader stream = new SpathXmlStreamReader(reader, stack);
         return new SpathStreamEngineImpl<SpathEvent>(stack, stream);
     }
 
     public SpathStreamEngineImpl<StartElement> createEngine(XMLEventReader reader) {
-        SpathXmlEventReader bridge = new SpathXmlEventReader(reader);
-        SpathXmlEventEvaluator evaluator = new SpathXmlEventEvaluator();
-        SpathStack<StartElement> stack = new SpathStackImpl<StartElement>(evaluator);
+        SpathStackImpl<StartElement> stack = new SpathStackImpl<StartElement>();
+        SpathXmlEventReader bridge = new SpathXmlEventReader(reader, stack);
+        stack.setSpathEvaluator(bridge);
         return new SpathStreamEngineImpl<StartElement>(stack, bridge);
     }
 }

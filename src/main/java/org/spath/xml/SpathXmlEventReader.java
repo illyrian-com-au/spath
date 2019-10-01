@@ -12,24 +12,26 @@ import org.spath.query.SpathQueryException;
 
 import com.sun.xml.internal.stream.events.CharacterEvent;
 
-public class SpathXmlEventReader implements SpathEventSource<StartElement> {
+public class SpathXmlEventReader extends SpathXmlEventEvaluator implements SpathEventSource<StartElement> {
     private final XMLEventReader reader;
+    private final SpathStack<StartElement> stack;
     
-    public SpathXmlEventReader(XMLEventReader reader) {
+    public SpathXmlEventReader(XMLEventReader reader, SpathStack<StartElement> stack) {
         this.reader = reader;
+        this.stack = stack;
     }
     
     @Override
-    public boolean nextEvent(SpathStack<StartElement> engine) throws SpathQueryException {
+    public boolean nextEvent() throws SpathQueryException {
         try {
             XMLEvent event;
             while (reader.hasNext()) {
                 event = reader.nextEvent();
                 if (event instanceof StartElement) {
-                    engine.push((StartElement)event);
+                    stack.push((StartElement)event);
                     return true;
                 } else if (event instanceof EndElement) {
-                    engine.pop();
+                    stack.pop();
                     return true;
                 }
             }
@@ -40,7 +42,7 @@ public class SpathXmlEventReader implements SpathEventSource<StartElement> {
     }
 
     @Override
-    public String getText(SpathStack<StartElement> engine) throws SpathQueryException {
+    public String getText() throws SpathQueryException {
         try {
             if (reader.peek() instanceof CharacterEvent) {
                 CharacterEvent event = (CharacterEvent)reader.peek();

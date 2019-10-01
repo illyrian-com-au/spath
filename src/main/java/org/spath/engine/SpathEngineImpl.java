@@ -4,12 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.spath.SpathEngine;
-import org.spath.SpathEventSource;
 import org.spath.SpathMatch;
 import org.spath.SpathQuery;
 import org.spath.SpathStack;
 import org.spath.parser.SpathParser;
-import org.spath.query.SpathQueryException;
 
 /**
  * An engine for applying Spath Expressions to a hierarchical series of events of type T.

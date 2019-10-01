@@ -2,7 +2,7 @@ package org.spath.query;
 
 import org.spath.SpathMatch;
 
-public class SpathQueryBinary {
+public abstract class SpathQueryBinary {
     private final SpathMatch left;
     private final SpathMatch right;
 

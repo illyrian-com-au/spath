@@ -109,7 +109,7 @@ public class XmlEventHtmlTest  extends TestCase {
         FileReader input = new FileReader(infile);
         XMLEventReader reader = inFactory.createXMLEventReader(input);
         
-        File outfile = new File("test.html");
+        File outfile = new File("target/test.html");
         FileWriter output = new FileWriter(outfile);
         System.out.println("Output file: " + outfile.getAbsolutePath());
         XmlEventHtmlWriter html = factory.createXmlEventHtmlWriter(output);

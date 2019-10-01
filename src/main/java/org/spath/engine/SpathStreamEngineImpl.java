@@ -1,15 +1,12 @@
 package org.spath.engine;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.spath.SpathStreamEngine;
 import org.spath.SpathEventSource;
 import org.spath.SpathMatch;
 import org.spath.SpathQuery;
 import org.spath.SpathStack;
-import org.spath.parser.SpathParser;
+import org.spath.SpathStreamEngine;
 import org.spath.query.SpathQueryException;
 
 /**
@@ -27,7 +24,7 @@ public class SpathStreamEngineImpl<T> extends SpathEngineImpl<T> implements Spat
     long       noProgressThreshold = NO_PROGRESS_THREASHOLD;
     long       noProgressCount = 0;
     
-    public SpathStreamEngineImpl(SpathStack<T> stack, SpathEventSource<T> source) {
+    public SpathStreamEngineImpl(SpathStack<T> stack, SpathEventSource source) {
         super(stack);
         this.source = source;
     }
@@ -64,7 +61,7 @@ public class SpathStreamEngineImpl<T> extends SpathEngineImpl<T> implements Spat
     public boolean matchNext(SpathQuery query) { 
         lastMatched = null;
         noProgressCount = 0;
-        while (source.nextEvent(stack)) {
+        while (source.nextEvent()) {
             if (query != null && !stack.partial(query)) {
                 break;
             } else if ((lastMatched = findMatch()) != null) {
@@ -80,14 +77,14 @@ public class SpathStreamEngineImpl<T> extends SpathEngineImpl<T> implements Spat
         if (firstPass) {
             firstPass = false;
             if (pathMap.isEmpty()) {
-                return source.nextEvent(stack);
+                return source.nextEvent();
             }
         } else if (pathMap.isEmpty()) {
             throw new SpathQueryException("No queries have been added to the SpathStreamEngine");
         }
         lastMatched = null;
         noProgressCount = 0;
-        while (source.nextEvent(stack)) {
+        while (source.nextEvent()) {
             if ((lastMatched = findMatch()) != null) {
                 return true;
             }
@@ -105,7 +102,7 @@ public class SpathStreamEngineImpl<T> extends SpathEngineImpl<T> implements Spat
     
     @Override
     public String getText() {
-        return source.getText(stack);
+        return source.getText();
     }
     
     @Override

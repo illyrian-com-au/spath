@@ -4,10 +4,13 @@ import java.math.BigDecimal;
 
 import org.spath.SpathEvaluator;
 import org.spath.engine.SpathUtil;
+import org.spath.query.SpathFunction;
+import org.spath.query.SpathName;
 import org.spath.query.SpathPredicateBoolean;
 import org.spath.query.SpathPredicateNumber;
 import org.spath.query.SpathPredicateString;
 import org.spath.query.SpathQueryElement;
+import org.spath.query.SpathQueryException;
 
 public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
     
@@ -16,9 +19,7 @@ public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
     
     @Override
     public boolean match(SpathQueryElement target, SpathEvent event) {
-        String targetValue = target.getName();
-        String eventValue = event.getName();
-        return targetValue.equals(eventValue);
+        return target.getSpathName().match(this, event);
     }
     
     @Override
@@ -55,5 +56,21 @@ public class SpathEventEvaluator implements SpathEvaluator<SpathEvent> {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean match(SpathName target, SpathEvent event) {
+        String targetValue = target.getName();
+        String eventValue = event.getName();
+        return targetValue.equals(eventValue);
+    }
+
+    @Override
+    public boolean match(SpathFunction target, SpathEvent event) {
+        String function = target.getName();
+        if ("text".equals(function)) {
+            return event.getText() != null;
+        }
+        throw new SpathQueryException("Unknown Spath function: " + function);
     }
 }

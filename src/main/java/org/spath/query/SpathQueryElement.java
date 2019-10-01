@@ -9,37 +9,21 @@ public class SpathQueryElement implements SpathQuery {
     public static final String STAR = "*";
 
     protected final SpathQuery parent;
-    protected final String name;
+    protected final SpathName name;
     protected final int depth;
     protected final SpathQueryType type;
     private SpathMatch predicate = null;
 
-    public SpathQueryElement(SpathQuery parent) {
-        this(parent, STAR, null);
-    }
-    
-    SpathQueryElement(SpathQuery parent, SpathMatch predicate) {
-        this(parent, STAR, predicate);
-    }
-    
-    public SpathQueryElement(SpathQuery parent, String name) {
+    public SpathQueryElement(SpathQuery parent, SpathName name) {
         this(parent, name, null);
     }
     
-    SpathQueryElement(SpathQuery parent, String name, SpathMatch predicate) {
-        validate(parent);
-        validate(name);
-        this.parent = parent;
-        this.name = name;
-        this.depth = parent.getDepth() + 1;
-        this.type = (parent.getType() == SpathQueryType.ROOT) ? SpathQueryType.ROOT : SpathQueryType.ELEMENT;
-        if (predicate != null) {
-            add(predicate);
-        }
+    SpathQueryElement(SpathQuery parent, SpathName name, SpathMatch predicate) {
+        this(parent, name, determineSpathQueryType(parent), predicate);
     }
     
-    SpathQueryElement(String name, SpathQueryType type, SpathMatch predicate) {
-        validate(name);
+    SpathQueryElement(SpathName name, SpathQueryType type, SpathMatch predicate) {
+        validate(name.getName());
         validate(type);
         this.parent = null;
         this.name = name;
@@ -50,17 +34,25 @@ public class SpathQueryElement implements SpathQuery {
         }
     }
     
-    SpathQueryElement(SpathQuery parent, String name, SpathQueryType type, SpathMatch predicate) {
+    SpathQueryElement(SpathQuery parent, SpathName name, SpathQueryType type, SpathMatch predicate) {
         validate(parent);
-        validate(name);
+        validate(name.getName());
         validate(parent, type);
         this.parent = parent;
         this.name = name;
         this.type = type;
-        this.depth = parent.getDepth() + 1;
+        if (SpathQueryType.TERMINAL == type) {
+            this.depth = parent.getDepth();
+        } else {
+            this.depth = parent.getDepth() + 1;
+        }
         if (predicate != null) {
             add(predicate);
         }
+    }
+    
+    protected static SpathQueryType determineSpathQueryType(SpathQuery parent) {
+        return (parent.getType() == SpathQueryType.ROOT) ? SpathQueryType.ROOT : SpathQueryType.ELEMENT;
     }
     
     void validate(SpathQuery parent) {
@@ -106,7 +98,7 @@ public class SpathQueryElement implements SpathQuery {
     }
 
     public <T> boolean match(SpathEvaluator<T> matcher, T event) {
-        if (matcher.match(this, event) || isWild(getName())) {
+        if (matcher.match(this, event) || isWild(getSpathName().getName())) {
             return matchPredicate(matcher, event);
         }
         return false;
@@ -123,7 +115,7 @@ public class SpathQueryElement implements SpathQuery {
         return parent;
     }
 
-    public String getName() {
+    public SpathName getSpathName() {
         return name;
     }
 

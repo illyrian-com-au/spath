@@ -7,18 +7,14 @@ import org.spath.SpathQuery;
 public class SpathQueryStart extends SpathQueryElement implements SpathQuery {
 
     public SpathQueryStart() {
-        super(STAR, SpathQueryType.ROOT, null);
+        super(new SpathAnyName(), SpathQueryType.ROOT, null);
     }
 
-    public SpathQueryStart(String name) {
+    public SpathQueryStart(SpathName name) {
         super(name, SpathQueryType.ROOT, null);
     }
 
-    public SpathQueryStart(SpathMatch predicate) {
-        super(STAR, SpathQueryType.ROOT, predicate);
-    }
-
-    public SpathQueryStart(String name, SpathMatch predicate) {
+    public SpathQueryStart(SpathName name, SpathMatch predicate) {
         super(name, SpathQueryType.ROOT, predicate);
     }
 }

@@ -21,8 +21,8 @@ public class SpathEventEvaluatorTest extends TestCase {
     SpathEvaluator<SpathEvent> matcher = new SpathEventEvaluator();
     
     SpathStreamEngine createEngine(SpathEvent [] list) {
-        SpathEventTestSource<SpathEvent> source = new SpathEventTestSource<SpathEvent>(list);
         SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(matcher);
+        SpathEventTestSource source = new SpathEventTestSource(list, stack);
         SpathStreamEngine engine = new SpathStreamEngineImpl<SpathEvent>(stack, source);
         return engine;
     }

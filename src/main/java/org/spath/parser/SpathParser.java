@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 
 import org.spath.SpathMatch;
 import org.spath.SpathQuery;
+import org.spath.query.SpathAnyName;
+import org.spath.query.SpathFunction;
+import org.spath.query.SpathName;
+import org.spath.query.SpathQualifiedName;
 import org.spath.query.SpathQueryException;
 import org.spath.query.SpathQueryBuilder;
 import org.spath.query.SpathPredicateOperator;
@@ -69,18 +73,18 @@ public class SpathParser {
         if (accept(SpathToken.OPERATOR, "/")) {
             SpathQueryBuilder build = new SpathQueryBuilder()
                 .withType(SpathQueryType.ROOT)
-                .withName(element())
+                .withName(name())
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
         } else if (accept(SpathToken.OPERATOR, "//")) {
             SpathQueryBuilder build = new SpathQueryBuilder()
                 .withType(SpathQueryType.RELATIVE)
-                .withName(element())
+                .withName(name())
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
         } else {
             SpathQueryBuilder build = new SpathQueryBuilder()
-                .withName(element())
+                .withName(name())
                 .withType(SpathQueryType.RELATIVE)
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
@@ -92,27 +96,38 @@ public class SpathParser {
         SpathQueryBuilder build = new SpathQueryBuilder(parent);
         SpathQuery expr = null;
         if (accept(SpathToken.OPERATOR, "/")) {
-            build.withName(element())
+            build.withElement(element())
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
         } else if (accept(SpathToken.OPERATOR, "//")) {
             build.withType(SpathQueryType.RELATIVE)
-                .withName(element())
+                .withElement(element())
                 .withPredicate(predicateOpt());
             expr = extension(build.build());
-        } else {
+        } else if (match(SpathToken.END)) {
             expr = parent;
+        } else {
+            throw exception("Unexpected input: " + toString());
         }
         return expr;
     }
     
-    String element() {
+    SpathName element() {
         if (match(SpathToken.IDENTIFIER)) {
-            String value = lexer.getTokenValue();
+            String name = lexer.getTokenValue();
             nextToken();
-            return value;
+            if (accept(SpathToken.DELIMITER, ":")) {
+                String qualifier = lexer.getTokenValue();
+                nextToken();
+                return new SpathQualifiedName(qualifier, name);
+            } else if (accept(SpathToken.DELIMITER, "(")) {
+                expect(SpathToken.DELIMITER, ")", ") expected");
+                return new SpathFunction(name);
+            } else {
+                return new SpathName(name);
+            }
         } else if (accept(SpathToken.DELIMITER, "*")) {
-            return STAR;
+            return new SpathAnyName();
         } else {
             throw exception("Expected a name or *");
         }
@@ -148,7 +163,7 @@ public class SpathParser {
     SpathMatch predicate() {
         SpathMatch predicate = null;
         if (accept(SpathToken.DELIMITER, "@")) {
-            String name = element();
+            String name = name();
             if (match(SpathToken.OPERATOR)) {
                 SpathPredicateOperator operator = predicateOperator();
                 if (match(SpathToken.STRING)) {
@@ -175,6 +190,18 @@ public class SpathParser {
             throw exception("Attribute symbol '@' expected.");
         }
         return predicate;
+    }
+    
+    String name() {
+        if (match(SpathToken.IDENTIFIER)) {
+            String value = lexer.getTokenValue();
+            nextToken();
+            return value;
+        } else if (accept(SpathToken.DELIMITER, "*")) {
+            return STAR;
+        } else {
+            throw exception("Expected a name or *");
+        }
     }
     
     SpathPredicateOperator predicateOperator() {

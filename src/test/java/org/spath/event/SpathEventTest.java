@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventEvaluator;
+import org.spath.query.SpathName;
 import org.spath.query.SpathQueryStart;
 import org.spath.query.SpathPredicateOperator;
 import org.spath.query.SpathPredicateBoolean;
@@ -48,7 +49,7 @@ public class SpathEventTest extends TestCase {
         assertEquals("data(date='2018-03-21')", event2.toString());
 
         SpathEventEvaluator eval = new SpathEventEvaluator();
-        SpathQueryStart spath = new SpathQueryStart("data");
+        SpathQueryStart spath = new SpathQueryStart(new SpathName("data"));
         assertTrue("match(\"data\")", eval.match(spath, event1));
         assertTrue("match(\"data\")", eval.match(spath, event2));
         

@@ -3,9 +3,12 @@ package org.spath.parse;
 import org.spath.SpathMatch;
 import org.spath.SpathQuery;
 import org.spath.parser.SpathParser;
+import org.spath.query.SpathFunction;
+import org.spath.query.SpathName;
 import org.spath.query.SpathQueryElement;
 import org.spath.query.SpathQueryRelative;
 import org.spath.query.SpathQueryStart;
+import org.spath.query.SpathQueryTerminal;
 import org.spath.query.SpathQueryType;
 
 import junit.framework.TestCase;
@@ -73,19 +76,46 @@ public class SpathParserTest extends TestCase {
         result = result.getParent();
         assertSpathNameStart(result, "data");
     }
+
+    public void testParserAbsoluteTextFunction() {
+        SpathQuery result = parser.parse("/data/text()");
+        assertNotNull("Null result from parser", result);
+        assertEquals("/data/text()", result.toString());
+        assertSpathFunction(result, "text");
+        assertSpathNameStart(result.getParent(), "data");
+    }
+
+    public void testParserRelativeTextFunction() {
+        SpathQuery result = parser.parse("//data/text()");
+        assertNotNull("Null result from parser", result);
+        assertEquals("//data/text()", result.toString());
+        assertSpathFunction(result, "text");
+        assertSpathNameRelative(result.getParent(), "data", 1);
+    }
+
+    // Assert helpers
     
     private void assertSpathNameElement(SpathMatch target, String name, SpathQueryType type, int depth) {
         assertEquals(SpathQueryElement.class, target.getClass());
         SpathQueryElement start = (SpathQueryElement)target;
-        assertEquals("Name", name, start.getName());
+        assertEquals("Name", name, start.getSpathName().toString());
         assertEquals("Type", type, start.getType());
         assertEquals("Depth", depth, start.getDepth());
+    }
+
+    private void assertSpathFunction(SpathMatch target, String functionName) {
+        assertEquals(SpathQueryTerminal.class, target.getClass());
+        SpathQueryTerminal terminal = (SpathQueryTerminal)target;
+        SpathName name = terminal.getSpathName();
+        assertEquals(SpathFunction.class, name.getClass());
+        SpathFunction function = (SpathFunction)name;
+        assertEquals("Function", functionName, function.getName());
     }
 
     private void assertSpathNameStart(SpathMatch target, String name) {
         assertEquals(SpathQueryStart.class, target.getClass());
         SpathQueryStart start = (SpathQueryStart)target;
-        assertEquals("Name", name, start.getName());
+        assertEquals("Name", name, start.getSpathName().toString());
         assertEquals("Type", SpathQueryType.ROOT, start.getType());
         assertEquals("Depth", 1, start.getDepth());
     }
@@ -93,7 +123,7 @@ public class SpathParserTest extends TestCase {
     private void assertSpathNameRelative(SpathMatch target, String name, int depth) {
         assertEquals(SpathQueryRelative.class, target.getClass());
         SpathQueryRelative element = (SpathQueryRelative)target;
-        assertEquals("Name", name, element.getName());
+        assertEquals("Name", name, element.getSpathName().toString());
         assertEquals("Type", SpathQueryType.RELATIVE, element.getType());
         assertEquals("Depth", depth, element.getDepth());
     }

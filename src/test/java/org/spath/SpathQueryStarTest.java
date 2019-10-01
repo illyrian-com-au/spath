@@ -6,17 +6,19 @@ import org.junit.Test;
 import org.spath.engine.SpathStackImpl;
 import org.spath.event.SpathEvent;
 import org.spath.event.SpathEventEvaluator;
-import org.spath.query.SpathQueryElement;
-import org.spath.query.SpathQueryRelative;
+import org.spath.query.SpathAnyName;
+import org.spath.query.SpathName;
+import org.spath.query.SpathQueryBuilder;
 import org.spath.query.SpathQueryStart;
 
 public class SpathQueryStarTest extends TestCase {
     SpathEventEvaluator evaluator = new SpathEventEvaluator();
     SpathStack<SpathEvent> stack = new SpathStackImpl<SpathEvent>(evaluator);
+    SpathQueryBuilder builder = new SpathQueryBuilder();
     
     @Test
     public void testSimpleStar() {
-        SpathQuery star = new SpathQueryStart();
+        SpathQuery star = builder.root().withStar().build();
         assertEquals("/*", star.toString());
 
         assertFalse("Should not match " + star, stack.match(star));
@@ -28,8 +30,8 @@ public class SpathQueryStarTest extends TestCase {
 
     @Test
     public void testDoubleStar() {
-        SpathQuery star = new SpathQueryStart();
-        SpathQuery dstar = new SpathQueryElement(star);
+        SpathQuery dstar = builder.root().withStar().next()
+                .withStar().build();
         assertEquals("/*/*", dstar.toString());
 
         assertFalse("Should not match " + dstar, stack.match(dstar));
@@ -45,8 +47,8 @@ public class SpathQueryStarTest extends TestCase {
 
     @Test
     public void testStarPhone() {
-        SpathQuery star = new SpathQueryStart();
-        SpathQuery dstar = new SpathQueryElement(star, "phone");
+        SpathQuery dstar = builder.root().withStar().next()
+                .withName("phone").build();
         assertEquals("/*/phone", dstar.toString());
 
         assertFalse("Should not match " + dstar, stack.match(dstar));
@@ -69,8 +71,9 @@ public class SpathQueryStarTest extends TestCase {
 
     @Test
     public void testAnyStarPhone() {
-        SpathQuery star = new SpathQueryRelative();
-        SpathQuery dstar = new SpathQueryElement(star, "phone");
+        SpathQuery dstar = builder
+                .withStar().next()
+                .withName("phone").build();
         assertEquals("//*/phone", dstar.toString());
 
         assertFalse("Should not match " + dstar, stack.match(dstar));
@@ -94,7 +97,7 @@ public class SpathQueryStarTest extends TestCase {
 
     @Test
     public void testAnyStar() {
-        SpathQuery star = new SpathQueryRelative();
+        SpathQuery star = builder.withStar().build();
         assertEquals("//*", star.toString());
 
         assertFalse("Should not match " + star, stack.match(star));
@@ -118,15 +121,15 @@ public class SpathQueryStarTest extends TestCase {
 
     @Test
     public void testInvalidCharacters() {
-        new SpathQueryStart(SpathQueryElement.STAR);
+        new SpathQueryStart(new SpathAnyName());
         try {
-            new SpathQueryStart("!");
+            new SpathName("!");
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
             assertEquals("Invalid character : '!' in SpathQuery: !", ex.getMessage());
         }
         try {
-            new SpathQueryStart("hello*world");
+            new SpathName("hello*world");
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
             assertEquals("Invalid character : '*' in SpathQuery: hello*world", ex.getMessage());

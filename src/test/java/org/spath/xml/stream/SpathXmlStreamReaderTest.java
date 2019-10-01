@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.spath.SpathStreamEngine;
 import org.spath.SpathQuery;
+import org.spath.query.SpathName;
 import org.spath.query.SpathPredicateOperator;
 import org.spath.query.SpathPredicateString;
 import org.spath.query.SpathQueryElement;
@@ -48,7 +49,7 @@ public class SpathXmlStreamReaderTest extends TestCase {
         
         XMLStreamReader reader = xmlFactory.createXMLStreamReader(out.getLineReader());
         SpathStreamEngine engine = spathFactory.createEngine(reader);
-        SpathQuery data = new SpathQueryStart("data");
+        SpathQuery data = new SpathQueryStart(new SpathName("data"));
         engine.add(data);
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -66,8 +67,8 @@ public class SpathXmlStreamReaderTest extends TestCase {
         
         XMLStreamReader reader = xmlFactory.createXMLStreamReader(out.getLineReader());
         SpathStreamEngine engine = spathFactory.createEngine(reader);
-        SpathQuery data = engine.add(new SpathQueryStart("data"));
-        SpathQuery bold = engine.add(new SpathQueryElement(data, "b"));
+        SpathQuery data = engine.add(new SpathQueryStart(new SpathName("data")));
+        SpathQuery bold = engine.add(new SpathQueryElement(data, new SpathName("b")));
 
         assertTrue("matchNext()", engine.matchNext());
         assertTrue("match(data)", engine.match(data));
@@ -90,7 +91,7 @@ public class SpathXmlStreamReaderTest extends TestCase {
         
         XMLStreamReader reader = xmlFactory.createXMLStreamReader(out.getLineReader());
         SpathStreamEngine engine = spathFactory.createEngine(reader);
-        SpathQueryStart data = new SpathQueryStart("data");
+        SpathQueryStart data = new SpathQueryStart(new SpathName("data"));
         data.add(new SpathPredicateString("lang", SpathPredicateOperator.EQ, "En"));
         engine.add(data);
         assertTrue("matchNext()", engine.matchNext());
@@ -122,10 +123,10 @@ public class SpathXmlStreamReaderTest extends TestCase {
         
         XMLStreamReader reader = xmlFactory.createXMLStreamReader(out.getLineReader());
         SpathStreamEngine engine = spathFactory.createEngine(reader);
-        SpathQuery dataPath = engine.add(new SpathQueryStart("data"));
-        SpathQuery namePath = engine.add(new SpathQueryRelative("name"));
-        SpathQuery addressPath = engine.add(new SpathQueryRelative("address"));
-        SpathQuery pricePath = engine.add(new SpathQueryRelative("price"));
+        SpathQuery dataPath = engine.add(new SpathQueryStart(new SpathName("data")));
+        SpathQuery namePath = engine.add(new SpathQueryRelative(new SpathName("name")));
+        SpathQuery addressPath = engine.add(new SpathQueryRelative(new SpathName("address")));
+        SpathQuery pricePath = engine.add(new SpathQueryRelative(new SpathName("price")));
         
         String name = null;
         String address = null;
